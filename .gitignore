@@ -1,0 +1,19 @@
+# Database credentials - contains sensitive connection info
+config/db.php
+
+# User-uploaded files - not source code, should not be committed
+uploads/
+
+# Common OS files to ignore
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
