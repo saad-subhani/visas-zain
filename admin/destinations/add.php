@@ -19,7 +19,7 @@ $tuition_range = "";
 $living_cost = "";
 $visa_info = "";
 $image_url = "";
-$status = "active";
+$status = "Active";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $tuition_range = trim($_POST["tuition_range"] ?? "");
     $living_cost = trim($_POST["living_cost"] ?? "");
     $visa_info = trim($_POST["visa_info"] ?? "");
-    $status = $_POST["status"] ?? "active";
+    $status = $_POST["status"] ?? "Active";
 
     if ($country_name === "") {
         $errors[] = "Country name is required.";
@@ -60,9 +60,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errors[] = "Visa information is required.";
     }
 
-    if (!in_array($status, ["active", "inactive"], true)) {
+    if (!in_array($status, ["Active", "Inactive"], true)) {
         $errors[] = "Invalid status selected.";
     }
+
 
     /* IMAGE VALIDATION */
 
@@ -83,17 +84,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 "image/webp"
             ];
 
-            $fileType = mime_content_type($_FILES["image"]["tmp_name"]);
+            $fileType = mime_content_type(
+                $_FILES["image"]["tmp_name"]
+            );
 
             if (!in_array($fileType, $allowedTypes, true)) {
+
                 $errors[] = "Only JPG, PNG and WEBP images are allowed.";
+
             }
 
             if ($_FILES["image"]["size"] > 5 * 1024 * 1024) {
+
                 $errors[] = "Image size must be less than 5MB.";
+
             }
+
         }
+
     }
+
 
     if (empty($errors)) {
 
@@ -115,6 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             } else {
 
+
                 /* IMAGE UPLOAD */
 
                 if (
@@ -122,10 +133,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $_FILES["image"]["error"] === UPLOAD_ERR_OK
                 ) {
 
-                    $uploadDirectory = __DIR__ . "/../../uploads/destinations/";
+                    $uploadDirectory =
+                        __DIR__ . "/../../uploads/destinations/";
 
                     if (!is_dir($uploadDirectory)) {
-                        mkdir($uploadDirectory, 0777, true);
+
+                        mkdir(
+                            $uploadDirectory,
+                            0777,
+                            true
+                        );
+
                     }
 
                     $extension = strtolower(
@@ -135,9 +153,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         )
                     );
 
-                    $fileName = uniqid("destination_", true) . "." . $extension;
+                    $fileName =
+                        uniqid("destination_", true)
+                        . "."
+                        . $extension;
 
-                    $uploadPath = $uploadDirectory . $fileName;
+                    $uploadPath =
+                        $uploadDirectory . $fileName;
+
 
                     if (!move_uploaded_file(
                         $_FILES["image"]["tmp_name"],
@@ -148,9 +171,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     } else {
 
-                        $image_url = "../../uploads/destinations/" . $fileName;
+                        $image_url =
+                            "../../uploads/destinations/"
+                            . $fileName;
+
                     }
+
                 }
+
 
                 if (empty($errors)) {
 
@@ -182,29 +210,48 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     ");
 
                     $stmt->execute([
+
                         ":country_name" => $country_name,
+
                         ":slug" => $slug,
+
                         ":description" => $description,
+
                         ":why_study" => $why_study,
+
                         ":tuition_range" => $tuition_range,
+
                         ":living_cost" => $living_cost,
+
                         ":visa_info" => $visa_info,
+
                         ":image_url" => $image_url,
+
                         ":status" => $status
+
                     ]);
 
-                    $_SESSION["success"] = "Destination added successfully.";
+
+                    $_SESSION["success"] =
+                        "Destination added successfully.";
 
                     header("Location: index.php");
+
                     exit;
+
                 }
+
             }
 
         } catch (PDOException $e) {
 
-            $errors[] = "Unable to add destination. Please try again.";
+            $errors[] =
+                "Unable to add destination. Please try again.";
+
         }
+
     }
+
 }
 
 ?>
@@ -222,7 +269,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Add Destination | Edworldly Consultancy</title>
+    <title>Add Destination | Foreign Study Consultants</title>
 
     <link
         rel="stylesheet"
@@ -467,11 +514,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: #27344d;
         }
 
-
-        /* =========================================
-           MOBILE RESPONSIVE
-           ========================================= */
-
         @media (max-width: 900px) {
 
             .sidebar {
@@ -535,7 +577,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         }
 
-
         @media (max-width: 700px) {
 
             .form-grid {
@@ -575,7 +616,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
 
         }
-
 
         @media (max-width: 500px) {
 
@@ -645,16 +685,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <div class="admin-layout">
 
-    <!-- MOBILE OVERLAY -->
-
     <div
         class="sidebar-overlay"
         id="sidebarOverlay"
         onclick="closeSidebar()"
     ></div>
 
-
-    <!-- SIDEBAR -->
 
     <aside class="sidebar" id="sidebar">
 
@@ -665,8 +701,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+                <h2>Foreign Study</h2>
+                <span>Consultants</span>
             </div>
 
         </div>
@@ -718,6 +754,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             </a>
 
+
+            <a href="../contact-messages/index.php" class="nav-item">
+
+                <i class="fa-solid fa-envelope"></i>
+
+                <span>Contact Messages</span>
+
+            </a>
+
         </nav>
 
 
@@ -734,7 +779,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars($_SESSION["admin_username"] ?? "Admin") ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -757,15 +802,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </aside>
 
 
-    <!-- MAIN -->
-
     <main class="main-content">
 
-        <!-- TOPBAR -->
 
         <header class="topbar">
-
-            <!-- MOBILE HAMBURGER -->
 
             <button
                 type="button"
@@ -773,7 +813,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 onclick="openSidebar()"
                 aria-label="Open menu"
             >
+
                 <i class="fa-solid fa-bars"></i>
+
             </button>
 
 
@@ -803,9 +845,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </header>
 
 
-        <!-- CONTENT -->
-
         <section class="content">
+
 
             <div class="page-header">
 
@@ -829,8 +870,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             </div>
 
-
-            <!-- ERRORS -->
 
             <?php if (!empty($errors)): ?>
 
@@ -861,14 +900,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <?php endif; ?>
 
 
-            <!-- FORM -->
-
             <div class="form-card">
 
                 <form method="POST" enctype="multipart/form-data">
 
-
-                    <!-- BASIC INFORMATION -->
 
                     <div class="form-section">
 
@@ -949,8 +984,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
 
 
-                    <!-- WHY STUDY -->
-
                     <div class="form-section">
 
                         <div class="form-section-title">
@@ -985,8 +1018,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
-                    <!-- COSTS & VISA -->
 
                     <div class="form-section">
 
@@ -1063,8 +1094,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
 
 
-                    <!-- MEDIA -->
-
                     <div class="form-section">
 
                         <div class="form-section-title">
@@ -1103,8 +1132,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
 
 
-                    <!-- STATUS -->
-
                     <div class="form-section">
 
                         <div class="form-section-title">
@@ -1133,15 +1160,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 >
 
                                     <option
-                                        value="active"
-                                        <?= $status === "active" ? "selected" : "" ?>
+                                        value="Active"
+                                        <?= $status === "Active" ? "selected" : "" ?>
                                     >
                                         Active
                                     </option>
 
                                     <option
-                                        value="inactive"
-                                        <?= $status === "inactive" ? "selected" : "" ?>
+                                        value="Inactive"
+                                        <?= $status === "Inactive" ? "selected" : "" ?>
                                     >
                                         Inactive
                                     </option>
@@ -1154,8 +1181,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
-                    <!-- ACTIONS -->
 
                     <div class="form-actions">
 
@@ -1194,6 +1219,7 @@ function openSidebar() {
     document.getElementById("sidebarOverlay").classList.add("active");
 
     document.body.style.overflow = "hidden";
+
 }
 
 
@@ -1204,6 +1230,7 @@ function closeSidebar() {
     document.getElementById("sidebarOverlay").classList.remove("active");
 
     document.body.style.overflow = "";
+
 }
 
 

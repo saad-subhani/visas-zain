@@ -46,14 +46,20 @@ if ($id <= 0) {
         $message = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$message) {
+
             $error = "Contact message not found.";
+
         } else {
 
-            if ($message["status"] !== "read") {
+            /*
+             * New message becomes Read when admin opens it.
+             */
+
+            if ($message["status"] === "New") {
 
                 $update = $pdo->prepare("
                     UPDATE contact_messages
-                    SET status = 'read'
+                    SET status = 'Read'
                     WHERE id = :id
                 ");
 
@@ -61,8 +67,9 @@ if ($id <= 0) {
                     ":id" => $id
                 ]);
 
-                $message["status"] = "read";
+                $message["status"] = "Read";
             }
+
         }
 
     } catch (PDOException $e) {
@@ -70,6 +77,7 @@ if ($id <= 0) {
         $error = "Unable to load contact message.";
 
     }
+
 }
 
 ?>
@@ -86,7 +94,7 @@ if ($id <= 0) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>View Contact Message | Edworldly Consultancy</title>
+    <title>View Contact Message | FSC Consultancy</title>
 
     <link
         rel="stylesheet"
@@ -195,6 +203,11 @@ if ($id <= 0) {
             color: #16803c;
         }
 
+        .status-replied {
+            background: #eef4ff;
+            color: #315edb;
+        }
+
         .delete-btn {
             display: inline-flex;
             align-items: center;
@@ -220,6 +233,79 @@ if ($id <= 0) {
             border-radius: 10px;
             background: #fff1f1;
             color: #c62828;
+        }
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.35);
+                z-index: 999;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .mobile-header {
+                display: flex !important;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                background: #ffffff;
+                border-bottom: 1px solid #e8ebf0;
+                position: sticky;
+                top: 0;
+                z-index: 900;
+            }
+
+            .mobile-menu-btn {
+                width: 40px;
+                height: 40px;
+                border: 1px solid #e1e5eb;
+                border-radius: 8px;
+                background: #ffffff;
+                color: #172033;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 17px;
+                cursor: pointer;
+            }
+
+        }
+
+        @media (min-width: 901px) {
+
+            .mobile-header {
+                display: none !important;
+            }
+
+            .sidebar-overlay {
+                display: none !important;
+            }
+
         }
 
         @media (max-width: 650px) {
@@ -251,7 +337,9 @@ if ($id <= 0) {
 
 <div class="admin-layout">
 
-    <aside class="sidebar">
+    <!-- EXACT DASHBOARD SIDEBAR -->
+
+    <aside class="sidebar" id="sidebar">
 
         <div class="sidebar-brand">
 
@@ -260,11 +348,12 @@ if ($id <= 0) {
             </div>
 
             <div>
-                <h2>Edworldly</h2>
+                <h2>FSC</h2>
                 <span>Consultancy</span>
             </div>
 
         </div>
+
 
         <nav class="sidebar-nav">
 
@@ -300,6 +389,7 @@ if ($id <= 0) {
 
         </nav>
 
+
         <div class="sidebar-bottom">
 
             <div class="admin-user">
@@ -309,19 +399,23 @@ if ($id <= 0) {
                 </div>
 
                 <div>
+
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars($_SESSION["admin_username"] ?? "Admin") ?>
                     </strong>
 
                     <span>Administrator</span>
+
                 </div>
 
             </div>
+
 
             <a href="../change-password.php" class="change-password-btn">
                 <i class="fa-solid fa-key"></i>
                 <span>Change Password</span>
             </a>
+
 
             <a href="../logout.php" class="logout-btn">
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -333,7 +427,47 @@ if ($id <= 0) {
     </aside>
 
 
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeSidebar()"
+    ></div>
+
+
+    <!-- MAIN -->
+
     <main class="main-content">
+
+        <div class="mobile-header">
+
+            <div>
+
+                <strong style="color:#172033;">
+                    FSC
+                </strong>
+
+                <span
+                    style="
+                        display:block;
+                        font-size:10px;
+                        color:#8a94a5;
+                    "
+                >
+                    Consultancy
+                </span>
+
+            </div>
+
+            <button
+                type="button"
+                class="mobile-menu-btn"
+                onclick="toggleSidebar()"
+            >
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+        </div>
+
 
         <header class="topbar">
 
@@ -445,9 +579,19 @@ if ($id <= 0) {
 
                             <div class="info-value">
 
-                                <span class="status status-read">
-                                    Read
-                                </span>
+                                <?php if ($message["status"] === "Replied"): ?>
+
+                                    <span class="status status-replied">
+                                        Replied
+                                    </span>
+
+                                <?php else: ?>
+
+                                    <span class="status status-read">
+                                        Read
+                                    </span>
+
+                                <?php endif; ?>
 
                             </div>
 
@@ -501,11 +645,8 @@ if ($id <= 0) {
                             type="submit"
                             class="delete-btn"
                         >
-
                             <i class="fa-solid fa-trash"></i>
-
                             Delete Message
-
                         </button>
 
                     </form>
@@ -519,6 +660,39 @@ if ($id <= 0) {
     </main>
 
 </div>
+
+
+<script>
+
+function toggleSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
+
+}
+
+function closeSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+
+}
+
+window.addEventListener("resize", function () {
+
+    if (window.innerWidth > 900) {
+        closeSidebar();
+    }
+
+});
+
+</script>
 
 </body>
 

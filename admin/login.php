@@ -20,7 +20,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $error = "Username and password are required.";
     } else {
 
-        $stmt = $pdo->prepare("SELECT id, username, password FROM admins WHERE username = ?");
+        $stmt = $pdo->prepare("
+            SELECT id, username, password, full_name, email
+            FROM admin_users
+            WHERE username = ?
+            AND status = 'Active'
+            LIMIT 1
+        ");
+
         $stmt->execute([$username]);
 
         $admin = $stmt->fetch();
@@ -31,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $_SESSION["admin_id"] = $admin["id"];
             $_SESSION["admin_username"] = $admin["username"];
+            $_SESSION["admin_name"] = $admin["full_name"] ?? "";
 
             header("Location: dashboard.php");
             exit;
@@ -45,11 +53,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Admin Login | Edworldly Consultancy</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Admin Login | FSC</title>
 
     <link
         rel="stylesheet"
@@ -57,6 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     >
 
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -66,7 +81,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         body {
             font-family: Arial, Helvetica, sans-serif;
             min-height: 100vh;
-            background: #f3f6fa;
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(16, 167, 217, 0.08),
+                    transparent 35%
+                ),
+                #f3f6fa;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -89,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .logo {
             width: 62px;
             height: 62px;
-            background: #172033;
+            background: #102f52;
             color: #ffffff;
             border-radius: 14px;
             display: flex;
@@ -106,7 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         .login-header h1 {
             font-size: 25px;
-            color: #172033;
+            color: #102f52;
             margin-bottom: 8px;
         }
 
@@ -151,8 +172,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         .input-wrapper input:focus {
-            border-color: #172033;
-            box-shadow: 0 0 0 3px rgba(23, 32, 51, 0.08);
+            border-color: #102f52;
+            box-shadow: 0 0 0 3px rgba(16, 47, 82, 0.08);
         }
 
         .error {
@@ -170,7 +191,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             height: 48px;
             border: none;
             border-radius: 9px;
-            background: #172033;
+            background: #102f52;
             color: #ffffff;
             font-size: 15px;
             font-weight: 600;
@@ -179,7 +200,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         .login-btn:hover {
-            background: #25314a;
+            background: #1a456f;
         }
 
         .footer-text {
@@ -190,11 +211,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         @media (max-width: 480px) {
+
             .login-card {
                 padding: 30px 22px;
             }
+
+            .login-header h1 {
+                font-size: 22px;
+            }
         }
+
     </style>
+
 </head>
 
 <body>
@@ -208,23 +236,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </div>
 
         <div class="login-header">
-            <h1>Edworldly Consultancy</h1>
-            <p>Admin Panel Login</p>
+
+            <h1>FSC Consultancy</h1>
+
+            <p>
+                Admin Panel Login
+            </p>
+
         </div>
 
         <?php if ($error !== ""): ?>
+
             <div class="error">
+
                 <i class="fa-solid fa-circle-exclamation"></i>
+
                 <?= htmlspecialchars($error) ?>
+
             </div>
+
         <?php endif; ?>
 
         <form method="POST">
 
             <div class="form-group">
-                <label for="username">Username</label>
+
+                <label for="username">
+                    Username
+                </label>
 
                 <div class="input-wrapper">
+
                     <i class="fa-solid fa-user"></i>
 
                     <input
@@ -236,13 +278,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         required
                         autofocus
                     >
+
                 </div>
+
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
+
+                <label for="password">
+                    Password
+                </label>
 
                 <div class="input-wrapper">
+
                     <i class="fa-solid fa-lock"></i>
 
                     <input
@@ -252,12 +300,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         placeholder="Enter password"
                         required
                     >
+
                 </div>
+
             </div>
 
-            <button type="submit" class="login-btn">
+            <button
+                type="submit"
+                class="login-btn"
+            >
+
                 <i class="fa-solid fa-right-to-bracket"></i>
+
                 &nbsp; Login
+
             </button>
 
         </form>
@@ -265,10 +321,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </div>
 
     <div class="footer-text">
-        © <?= date("Y") ?> Edworldly Consultancy. All rights reserved.
+
+        © <?= date("Y") ?> FSC Consultancy.
+        All rights reserved.
+
     </div>
 
 </div>
 
 </body>
+
 </html>

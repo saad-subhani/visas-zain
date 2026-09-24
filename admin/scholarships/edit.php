@@ -30,12 +30,19 @@ $official_source = "";
 $how_to_apply = "";
 $status = "active";
 
+/*
+|--------------------------------------------------------------------------
+| Load Scholarship
+|--------------------------------------------------------------------------
+*/
+
 try {
 
     $stmt = $pdo->prepare("
         SELECT *
         FROM scholarships
         WHERE id = :id
+        LIMIT 1
     ");
 
     $stmt->execute([
@@ -50,16 +57,16 @@ try {
         exit;
     }
 
-    $title = $scholarship["title"];
-    $description = $scholarship["description"];
-    $amount = $scholarship["amount"];
-    $deadline = $scholarship["deadline"];
-    $eligible_countries = $scholarship["eligible_countries"];
-    $study_level = $scholarship["study_level"];
-    $requirements = $scholarship["requirements"];
-    $official_source = $scholarship["official_source"];
-    $how_to_apply = $scholarship["how_to_apply"];
-    $status = $scholarship["status"];
+    $title = $scholarship["title"] ?? "";
+    $description = $scholarship["description"] ?? "";
+    $amount = $scholarship["amount"] ?? "";
+    $deadline = $scholarship["deadline"] ?? "";
+    $eligible_countries = $scholarship["eligible_countries"] ?? "";
+    $study_level = $scholarship["study_level"] ?? "";
+    $requirements = $scholarship["requirements"] ?? "";
+    $official_source = $scholarship["official_source"] ?? "";
+    $how_to_apply = $scholarship["how_to_apply"] ?? "";
+    $status = $scholarship["status"] ?? "active";
 
 } catch (PDOException $e) {
 
@@ -68,6 +75,12 @@ try {
     exit;
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Update Scholarship
+|--------------------------------------------------------------------------
+*/
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -185,7 +198,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Edit Scholarship | Edworldly Consultancy</title>
+    <title>Edit Scholarship | Foreign Study Consultant</title>
 
     <link
         rel="stylesheet"
@@ -198,6 +211,58 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     >
 
     <style>
+
+        .mobile-header {
+            display: none;
+        }
+
+        .mobile-menu-btn {
+            width: 42px;
+            height: 42px;
+            border: 1px solid #e8ebf0;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #102f52;
+            font-size: 18px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-overlay {
+            display: none;
+        }
+
+        .change-password-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 11px 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #102f52;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #e8ebf0;
+            transition: all 0.2s ease;
+        }
+
+        .change-password-btn:hover {
+            background: #102f52;
+            color: #ffffff;
+            border-color: #102f52;
+        }
+
+        .change-password-btn i {
+            width: 18px;
+            text-align: center;
+        }
+
+        .sidebar-brand {
+            color: rgb(14, 171, 214);
+        }
 
         .page-header {
             display: flex;
@@ -400,7 +465,78 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: #27344d;
         }
 
-        @media (max-width: 700px) {
+        @media (max-width: 900px) {
+
+            .mobile-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 14px 18px;
+                background: #ffffff;
+                border-bottom: 1px solid #e8ebf0;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .mobile-brand-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #102f52;
+                color: #ffffff;
+            }
+
+            .mobile-brand-text h2 {
+                margin: 0;
+                font-size: 15px;
+                color: #172033;
+            }
+
+            .mobile-brand-text span {
+                font-size: 11px;
+                color: #7e8899;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.35);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
 
             .form-grid {
                 grid-template-columns: 1fr;
@@ -419,6 +555,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 flex-direction: column;
             }
 
+            .topbar {
+                padding: 18px;
+            }
+
+            .content {
+                padding: 18px;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .form-card {
+                padding: 16px;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .cancel-btn,
+            .update-btn {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+
         }
 
     </style>
@@ -431,7 +594,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <!-- SIDEBAR -->
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
 
         <div class="sidebar-brand">
 
@@ -440,91 +603,72 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+                <h2>Foreign Study</h2>
+                <span>Consultant</span>
             </div>
 
         </div>
 
-
         <nav class="sidebar-nav">
 
             <a href="../dashboard.php" class="nav-item">
-
                 <i class="fa-solid fa-chart-line"></i>
-
                 <span>Dashboard</span>
-
             </a>
-
 
             <a href="../courses/index.php" class="nav-item">
-
                 <i class="fa-solid fa-book-open"></i>
-
                 <span>Courses</span>
-
             </a>
-
 
             <a href="../destinations/index.php" class="nav-item">
-
                 <i class="fa-solid fa-earth-americas"></i>
-
                 <span>Destinations</span>
-
             </a>
-
 
             <a href="../universities/index.php" class="nav-item">
-
                 <i class="fa-solid fa-building-columns"></i>
-
                 <span>Universities</span>
-
             </a>
 
-
             <a href="index.php" class="nav-item active">
-
                 <i class="fa-solid fa-award"></i>
-
                 <span>Scholarships</span>
+            </a>
 
+            <a href="../contact-messages/index.php" class="nav-item">
+                <i class="fa-solid fa-envelope"></i>
+                <span>Contact Messages</span>
             </a>
 
         </nav>
-
 
         <div class="sidebar-bottom">
 
             <div class="admin-user">
 
                 <div class="user-avatar">
-
                     <i class="fa-solid fa-user"></i>
-
                 </div>
 
                 <div>
-
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars($_SESSION["admin_username"] ?? "Admin") ?>
                     </strong>
 
                     <span>Administrator</span>
-
                 </div>
 
             </div>
 
+            <a href="../change-password.php" class="change-password-btn">
+                <i class="fa-solid fa-key"></i>
+                Change Password
+            </a>
 
             <a href="../logout.php" class="logout-btn">
-
                 <i class="fa-solid fa-right-from-bracket"></i>
-
                 Logout
-
             </a>
 
         </div>
@@ -532,9 +676,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </aside>
 
 
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeSidebar()"
+    ></div>
+
+
     <!-- MAIN -->
 
     <main class="main-content">
+
+        <!-- MOBILE HEADER -->
+
+        <div class="mobile-header">
+
+            <div class="mobile-brand">
+
+                <div class="mobile-brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+
+                <div class="mobile-brand-text">
+                    <h2>Foreign Study</h2>
+                    <span>Consultant</span>
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                class="mobile-menu-btn"
+                onclick="toggleSidebar()"
+                aria-label="Open menu"
+            >
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+        </div>
+
+
+        <!-- TOPBAR -->
 
         <header class="topbar">
 
@@ -547,7 +729,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </p>
 
             </div>
-
 
             <div class="topbar-right">
 
@@ -566,7 +747,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <section class="content">
 
-
             <div class="page-header">
 
                 <div>
@@ -579,13 +759,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 </div>
 
-
                 <a href="index.php" class="back-btn">
-
                     <i class="fa-solid fa-arrow-left"></i>
-
                     Back to Scholarships
-
                 </a>
 
             </div>
@@ -598,7 +774,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <div class="error-box-title">
 
                         <i class="fa-solid fa-circle-exclamation"></i>
-
                         Please fix the following errors:
 
                     </div>
@@ -631,22 +806,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-section-title">
 
                             <i class="fa-solid fa-award"></i>
-
                             <h2>Basic Information</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
                             <div class="form-group full">
 
                                 <label for="title">
-
                                     Scholarship Title
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <input
@@ -664,11 +834,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="form-group full">
 
                                 <label for="description">
-
                                     Description
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <textarea
@@ -692,22 +859,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-section-title">
 
                             <i class="fa-solid fa-coins"></i>
-
                             <h2>Funding & Deadline</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
                             <div class="form-group">
 
                                 <label for="amount">
-
                                     Scholarship Amount
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <input
@@ -725,11 +887,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="form-group">
 
                                 <label for="deadline">
-
                                     Application Deadline
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <input
@@ -755,22 +914,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-section-title">
 
                             <i class="fa-solid fa-user-check"></i>
-
                             <h2>Eligibility</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
                             <div class="form-group">
 
                                 <label for="eligible_countries">
-
                                     Eligible Countries
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <input
@@ -792,11 +946,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="form-group">
 
                                 <label for="study_level">
-
                                     Study Level
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <select
@@ -853,11 +1004,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="form-group full">
 
                                 <label for="requirements">
-
                                     Requirements
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <textarea
@@ -881,22 +1029,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-section-title">
 
                             <i class="fa-solid fa-file-circle-check"></i>
-
                             <h2>Application Information</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
                             <div class="form-group full">
 
                                 <label for="official_source">
-
                                     Official Source
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <input
@@ -914,11 +1057,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <div class="form-group full">
 
                                 <label for="how_to_apply">
-
                                     How to Apply
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <textarea
@@ -942,22 +1082,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="form-section-title">
 
                             <i class="fa-solid fa-toggle-on"></i>
-
                             <h2>Status</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
                             <div class="form-group">
 
                                 <label for="status">
-
                                     Scholarship Status
-
                                     <span class="required">*</span>
-
                                 </label>
 
                                 <select
@@ -1002,11 +1137,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             type="submit"
                             class="update-btn"
                         >
-
                             <i class="fa-solid fa-rotate"></i>
-
                             Update Scholarship
-
                         </button>
 
                     </div>
@@ -1021,6 +1153,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </div>
 
-</body>
 
+<script>
+
+function toggleSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
+
+}
+
+
+function closeSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+
+}
+
+
+document.querySelectorAll(".sidebar .nav-item").forEach(function (link) {
+
+    link.addEventListener("click", function () {
+
+        if (window.innerWidth <= 900) {
+            closeSidebar();
+        }
+
+    });
+
+});
+
+
+window.addEventListener("resize", function () {
+
+    if (window.innerWidth > 900) {
+        closeSidebar();
+    }
+
+});
+
+</script>
+
+</body>
 </html>

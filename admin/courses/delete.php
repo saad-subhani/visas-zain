@@ -19,7 +19,14 @@ if (!$id) {
 
 try {
 
-    $stmt = $pdo->prepare("SELECT id FROM courses WHERE id = :id");
+    // Check whether course exists
+    $stmt = $pdo->prepare("
+        SELECT id
+        FROM courses
+        WHERE id = :id
+        LIMIT 1
+    ");
+
     $stmt->execute([
         ":id" => $id
     ]);
@@ -27,12 +34,18 @@ try {
     $course = $stmt->fetch();
 
     if (!$course) {
+
         $_SESSION["error"] = "Course not found.";
+
         header("Location: index.php");
         exit;
     }
 
-    $stmt = $pdo->prepare("DELETE FROM courses WHERE id = :id");
+    // Delete course
+    $stmt = $pdo->prepare("
+        DELETE FROM courses
+        WHERE id = :id
+    ");
 
     $stmt->execute([
         ":id" => $id

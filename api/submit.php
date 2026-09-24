@@ -2,21 +2,11 @@
 
 header("Content-Type: application/json; charset=UTF-8");
 
-header("Access-Control-Allow-Origin: http://localhost:3000");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(204);
-    exit;
-}
-
-require_once __DIR__ . "/../config/db.php";
-
+require_once __DIR__ . "/../../config/db.php";
 
 /*
 |--------------------------------------------------------------------------
-| ONLY POST REQUESTS
+| Only POST requests are allowed
 |--------------------------------------------------------------------------
 */
 
@@ -26,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
     echo json_encode([
         "success" => false,
-        "message" => "Only POST requests are allowed."
+        "message" => "Method not allowed."
     ]);
 
     exit;
@@ -35,16 +25,16 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 /*
 |--------------------------------------------------------------------------
-| READ JSON DATA
+| Read JSON request body
 |--------------------------------------------------------------------------
 */
 
-$data = json_decode(
+$input = json_decode(
     file_get_contents("php://input"),
     true
 );
 
-if (!is_array($data)) {
+if (!is_array($input)) {
 
     http_response_code(400);
 
@@ -59,20 +49,20 @@ if (!is_array($data)) {
 
 /*
 |--------------------------------------------------------------------------
-| GET FORM FIELDS
+| Get form fields
 |--------------------------------------------------------------------------
 */
 
-$name = trim($data["name"] ?? "");
-$email = trim($data["email"] ?? "");
-$phone = trim($data["phone"] ?? "");
-$subject = trim($data["subject"] ?? "");
-$message = trim($data["message"] ?? "");
+$name = trim($input["name"] ?? "");
+$email = trim($input["email"] ?? "");
+$phone = trim($input["phone"] ?? "");
+$subject = trim($input["subject"] ?? "");
+$message = trim($input["message"] ?? "");
 
 
 /*
 |--------------------------------------------------------------------------
-| VALIDATION
+| Validate required fields
 |--------------------------------------------------------------------------
 */
 
@@ -143,7 +133,7 @@ if ($message === "") {
 
 /*
 |--------------------------------------------------------------------------
-| INSERT MESSAGE INTO DATABASE
+| Insert message into existing contact_messages table
 |--------------------------------------------------------------------------
 */
 
@@ -171,28 +161,27 @@ try {
     ");
 
     $stmt->execute([
-
         ":name" => $name,
-
         ":email" => $email,
-
-        ":phone" => $phone !== ""
-            ? $phone
-            : null,
-
+        ":phone" => $phone !== "" ? $phone : null,
         ":subject" => $subject,
-
         ":message" => $message
-
     ]);
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Success response
+    |--------------------------------------------------------------------------
+    */
 
     echo json_encode([
         "success" => true,
-        "message" => "Your enquiry has been submitted successfully."
+        "message" => "Your message has been sent successfully."
     ]);
 
     exit;
+
 
 } catch (PDOException $e) {
 
@@ -200,7 +189,7 @@ try {
 
     echo json_encode([
         "success" => false,
-        "message" => "Unable to submit your enquiry right now. Please try again."
+        "message" => "Unable to send your message right now. Please try again."
     ]);
 
     exit;

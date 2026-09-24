@@ -19,7 +19,7 @@ try {
         ORDER BY created_at DESC
     ");
 
-    $universities = $stmt->fetchAll();
+    $universities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
 
@@ -46,7 +46,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Universities | Edworldly Consultancy</title>
+    <title>Universities | FSC Consultancy</title>
 
     <link
         rel="stylesheet"
@@ -59,6 +59,10 @@ unset($_SESSION["success"], $_SESSION["error"]);
     >
 
     <style>
+
+        /* =========================================================
+           PAGE
+        ========================================================= */
 
         .page-header {
             display: flex;
@@ -83,18 +87,24 @@ unset($_SESSION["success"], $_SESSION["error"]);
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: #172033;
+            background: #102f52;
             color: #ffffff;
             padding: 11px 17px;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
             transition: 0.2s ease;
+            text-decoration: none;
         }
 
         .add-btn:hover {
-            background: #27344d;
+            background: #0b2745;
         }
+
+
+        /* =========================================================
+           ALERTS
+        ========================================================= */
 
         .alert {
             padding: 13px 16px;
@@ -117,6 +127,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             color: #b42318;
             border: 1px solid #ffd6d3;
         }
+
+
+        /* =========================================================
+           TABLE
+        ========================================================= */
 
         .table-card {
             background: #ffffff;
@@ -152,7 +167,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
         .universities-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1050px;
+            min-width: 1100px;
         }
 
         .universities-table th {
@@ -201,11 +216,16 @@ unset($_SESSION["success"], $_SESSION["error"]);
             font-weight: 500;
         }
 
-        .description-text {
+        .programmes-text {
             max-width: 230px;
             color: #667085;
             line-height: 1.5;
         }
+
+
+        /* =========================================================
+           SCHOLARSHIP
+        ========================================================= */
 
         .scholarship-badge {
             display: inline-flex;
@@ -223,6 +243,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             background: #f2f4f7;
             color: #667085;
         }
+
+
+        /* =========================================================
+           STATUS
+        ========================================================= */
 
         .status-badge {
             display: inline-flex;
@@ -251,6 +276,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             background: currentColor;
         }
 
+
+        /* =========================================================
+           ACTIONS
+        ========================================================= */
+
         .actions {
             display: flex;
             align-items: center;
@@ -266,6 +296,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
             justify-content: center;
             font-size: 11px;
             transition: 0.2s ease;
+            text-decoration: none;
         }
 
         .edit-btn {
@@ -285,6 +316,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
         .delete-btn:hover {
             background: #ffe4e6;
         }
+
+
+        /* =========================================================
+           EMPTY STATE
+        ========================================================= */
 
         .empty-state {
             padding: 70px 20px;
@@ -320,80 +356,65 @@ unset($_SESSION["success"], $_SESSION["error"]);
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: #172033;
+            background: #102f52;
             color: #ffffff;
             padding: 10px 15px;
             border-radius: 8px;
             font-size: 12px;
             font-weight: 600;
+            text-decoration: none;
+        }
+
+        .add-btn-small:hover {
+            background: #0b2745;
         }
 
 
-        /* MOBILE MENU BUTTON */
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        .mobile-header {
+            display: none;
+        }
 
         .mobile-menu-btn {
             display: none;
             width: 40px;
             height: 40px;
-            border: 1px solid #e8ebf0;
-            background: #ffffff;
-            color: #172033;
+            border: 1px solid #e1e5eb;
             border-radius: 8px;
+            background: #ffffff;
+            color: #102f52;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             font-size: 17px;
-            flex-shrink: 0;
         }
-
-        .mobile-menu-btn:hover {
-            background: #f8f9fb;
-        }
-
-
-        /* SIDEBAR OVERLAY */
 
         .sidebar-overlay {
             display: none;
         }
 
 
-        /* TABLET */
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
 
         @media (max-width: 900px) {
 
             .sidebar {
                 position: fixed;
-                left: -270px;
                 top: 0;
-                width: 250px;
-                height: 100vh;
-                z-index: 1000;
-                transition: left 0.25s ease;
-            }
-
-            .sidebar.active {
                 left: 0;
+                bottom: 0;
+                z-index: 1000;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
             }
 
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            .mobile-menu-btn {
-                display: inline-flex;
-            }
-
-            .topbar {
-                padding-left: 18px;
-                padding-right: 18px;
-            }
-
-            .topbar > div:first-child {
-                display: flex;
-                align-items: center;
-                gap: 12px;
+            .sidebar.open {
+                transform: translateX(0);
             }
 
             .sidebar-overlay {
@@ -403,19 +424,87 @@ unset($_SESSION["success"], $_SESSION["error"]);
                 z-index: 999;
             }
 
-            .sidebar-overlay.active {
+            .sidebar-overlay.show {
                 display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .mobile-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                background: #ffffff;
+                border-bottom: 1px solid #e8ebf0;
+                position: sticky;
+                top: 0;
+                z-index: 900;
+            }
+
+            .mobile-menu-btn {
+                display: inline-flex;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .mobile-brand-icon {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                background: #102f52;
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }
+
+            .mobile-brand-text h2 {
+                margin: 0;
+                font-size: 15px;
+                color: #102f52;
+            }
+
+            .mobile-brand-text span {
+                display: block;
+                margin-top: 1px;
+                font-size: 10px;
+                color: #8a94a5;
+            }
+
+            .topbar {
+                padding-top: 18px;
             }
 
         }
 
 
-        /* MOBILE */
-
         @media (max-width: 650px) {
 
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .topbar-right {
+                width: 100%;
+            }
+
+            .topbar-date {
+                width: fit-content;
+            }
+
             .content {
-                padding: 18px;
+                padding: 18px 14px;
             }
 
             .page-header {
@@ -426,27 +515,28 @@ unset($_SESSION["success"], $_SESSION["error"]);
             .add-btn {
                 width: 100%;
                 justify-content: center;
+                box-sizing: border-box;
             }
 
             .table-top {
                 padding: 15px;
             }
 
-            .table-wrapper {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
             .universities-table {
-                min-width: 1050px;
+                min-width: 1100px;
             }
 
-            .topbar {
-                min-height: 70px;
+        }
+
+
+        @media (max-width: 420px) {
+
+            .mobile-header {
+                padding: 10px 12px;
             }
 
-            .topbar-right {
-                display: none;
+            .content {
+                padding: 16px 12px;
             }
 
         }
@@ -457,14 +547,24 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
 <body>
 
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
 <div class="admin-layout">
 
+    <!-- =========================================================
+         SIDEBAR OVERLAY
+    ========================================================== -->
 
-    <!-- SIDEBAR -->
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeSidebar()"
+    ></div>
 
-    <aside class="sidebar">
+
+    <!-- =========================================================
+         SIDEBAR - EXACT DASHBOARD STYLE
+    ========================================================== -->
+
+    <aside class="sidebar" id="sidebar">
 
         <div class="sidebar-brand">
 
@@ -473,8 +573,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             </div>
 
             <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+
+                <h2>Foreign Study</h2>
+
+                <span>Consultant</span>
+
             </div>
 
         </div>
@@ -482,48 +585,57 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
         <nav class="sidebar-nav">
 
-            <a href="../dashboard.php" class="nav-item">
-
+            <a
+                href="../dashboard.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-chart-line"></i>
-
                 <span>Dashboard</span>
-
             </a>
 
 
-            <a href="../courses/index.php" class="nav-item">
-
+            <a
+                href="../courses/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-book-open"></i>
-
                 <span>Courses</span>
-
             </a>
 
 
-            <a href="../destinations/index.php" class="nav-item">
-
+            <a
+                href="../destinations/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-earth-americas"></i>
-
                 <span>Destinations</span>
-
             </a>
 
 
-            <a href="index.php" class="nav-item active">
-
+            <a
+                href="index.php"
+                class="nav-item active"
+            >
                 <i class="fa-solid fa-building-columns"></i>
-
                 <span>Universities</span>
-
             </a>
 
 
-            <a href="../scholarships/index.php" class="nav-item">
-
+            <a
+                href="../scholarships/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-award"></i>
-
                 <span>Scholarships</span>
+            </a>
 
+
+            <a
+                href="../contact-messages/index.php"
+                class="nav-item"
+            >
+                <i class="fa-solid fa-envelope"></i>
+                <span>Contact Messages</span>
             </a>
 
         </nav>
@@ -534,15 +646,15 @@ unset($_SESSION["success"], $_SESSION["error"]);
             <div class="admin-user">
 
                 <div class="user-avatar">
-
                     <i class="fa-solid fa-user"></i>
-
                 </div>
 
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars(
+                            $_SESSION["admin_username"] ?? "Admin"
+                        ) ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -552,12 +664,21 @@ unset($_SESSION["success"], $_SESSION["error"]);
             </div>
 
 
-            <a href="../logout.php" class="logout-btn">
+            <a
+                href="../change-password.php"
+                class="change-password-btn"
+            >
+                <i class="fa-solid fa-key"></i>
+                <span>Change Password</span>
+            </a>
 
+
+            <a
+                href="../logout.php"
+                class="logout-btn"
+            >
                 <i class="fa-solid fa-right-from-bracket"></i>
-
-                Logout
-
+                <span>Logout</span>
             </a>
 
         </div>
@@ -565,9 +686,44 @@ unset($_SESSION["success"], $_SESSION["error"]);
     </aside>
 
 
-    <!-- MAIN -->
+    <!-- =========================================================
+         MAIN
+    ========================================================== -->
 
     <main class="main-content">
+
+
+        <!-- MOBILE HEADER -->
+
+        <div class="mobile-header">
+
+            <div class="mobile-brand">
+
+                <div class="mobile-brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+
+                <div class="mobile-brand-text">
+
+                    <h2>FSC Consultancy</h2>
+
+                    <span>Admin Panel</span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="mobile-menu-btn"
+                onclick="toggleSidebar()"
+                aria-label="Open menu"
+            >
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+        </div>
 
 
         <!-- TOPBAR -->
@@ -576,24 +732,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
             <div>
 
-                <button
-                    type="button"
-                    class="mobile-menu-btn"
-                    id="mobileMenuBtn"
-                    aria-label="Open menu"
-                >
-                    <i class="fa-solid fa-bars"></i>
-                </button>
+                <h1>Universities</h1>
 
-                <div>
-
-                    <h1>Universities</h1>
-
-                    <p>
-                        Manage partner universities and institutions.
-                    </p>
-
-                </div>
+                <p>
+                    Manage partner universities and institutions.
+                </p>
 
             </div>
 
@@ -699,19 +842,13 @@ unset($_SESSION["success"], $_SESSION["error"]);
                                 <tr>
 
                                     <th>#</th>
-
                                     <th>UNIVERSITY</th>
-
                                     <th>COUNTRY</th>
-
+                                    <th>PROGRAMMES</th>
                                     <th>TUITION FEE</th>
-
                                     <th>INTAKE DATES</th>
-
                                     <th>SCHOLARSHIPS</th>
-
                                     <th>STATUS</th>
-
                                     <th>ACTIONS</th>
 
                                 </tr>
@@ -734,15 +871,20 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                         <div class="university-name">
 
-                                            <?= htmlspecialchars($university["name"]) ?>
+                                            <?= htmlspecialchars(
+                                                $university["name"] ?? ""
+                                            ) ?>
 
                                         </div>
+
 
                                         <div class="university-city">
 
                                             <i class="fa-solid fa-location-dot"></i>
 
-                                            <?= htmlspecialchars($university["city"]) ?>
+                                            <?= htmlspecialchars(
+                                                $university["city"] ?? ""
+                                            ) ?>
 
                                         </div>
 
@@ -753,7 +895,9 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                         <div class="country-name">
 
-                                            <?= htmlspecialchars($university["country"]) ?>
+                                            <?= htmlspecialchars(
+                                                $university["country"] ?? ""
+                                            ) ?>
 
                                         </div>
 
@@ -762,14 +906,31 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                     <td>
 
-                                        <?= htmlspecialchars($university["tuition_fee"]) ?>
+                                        <div class="programmes-text">
+
+                                            <?= htmlspecialchars(
+                                                $university["programmes"] ?? ""
+                                            ) ?>
+
+                                        </div>
 
                                     </td>
 
 
                                     <td>
 
-                                        <?= htmlspecialchars($university["intake_dates"]) ?>
+                                        <?= htmlspecialchars(
+                                            $university["tuition_fee"] ?? ""
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= htmlspecialchars(
+                                            $university["intake_dates"] ?? ""
+                                        ) ?>
 
                                     </td>
 
@@ -777,9 +938,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
                                     <td>
 
                                         <?php if (
-                                            $university["scholarships_available"] === "yes" ||
-                                            $university["scholarships_available"] === "1" ||
-                                            $university["scholarships_available"] === 1
+                                            ($university["scholarships_available"] ?? "") === "Yes"
                                         ): ?>
 
                                             <span class="scholarship-badge">
@@ -807,7 +966,9 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                     <td>
 
-                                        <?php if ($university["status"] === "active"): ?>
+                                        <?php if (
+                                            ($university["status"] ?? "") === "Active"
+                                        ): ?>
 
                                             <span class="status-badge active">
 
@@ -841,9 +1002,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
                                                 class="action-btn edit-btn"
                                                 title="Edit University"
                                             >
-
                                                 <i class="fa-solid fa-pen"></i>
-
                                             </a>
 
 
@@ -853,9 +1012,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
                                                 title="Delete University"
                                                 onclick="return confirm('Are you sure you want to delete this university?');"
                                             >
-
                                                 <i class="fa-solid fa-trash"></i>
-
                                             </a>
 
                                         </div>
@@ -912,38 +1069,48 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
 <script>
 
-    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-    const sidebar = document.querySelector(".sidebar");
-    const sidebarOverlay = document.getElementById("sidebarOverlay");
+function toggleSidebar() {
 
-    mobileMenuBtn.addEventListener("click", function () {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
 
-        sidebar.classList.toggle("active");
-        sidebarOverlay.classList.toggle("active");
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
+
+}
+
+
+function closeSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+
+}
+
+
+document.querySelectorAll(".sidebar .nav-item").forEach(function (link) {
+
+    link.addEventListener("click", function () {
+
+        if (window.innerWidth <= 900) {
+            closeSidebar();
+        }
 
     });
 
-
-    sidebarOverlay.addEventListener("click", function () {
-
-        sidebar.classList.remove("active");
-        sidebarOverlay.classList.remove("active");
-
-    });
+});
 
 
-    const sidebarLinks = document.querySelectorAll(".sidebar .nav-item");
+window.addEventListener("resize", function () {
 
-    sidebarLinks.forEach(function (link) {
+    if (window.innerWidth > 900) {
+        closeSidebar();
+    }
 
-        link.addEventListener("click", function () {
-
-            sidebar.classList.remove("active");
-            sidebarOverlay.classList.remove("active");
-
-        });
-
-    });
+});
 
 </script>
 

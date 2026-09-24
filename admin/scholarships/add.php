@@ -22,6 +22,11 @@ $official_source = "";
 $how_to_apply = "";
 $status = "active";
 
+
+/* =========================
+   FORM SUBMISSION
+========================= */
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $title = trim($_POST["title"] ?? "");
@@ -34,6 +39,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $official_source = trim($_POST["official_source"] ?? "");
     $how_to_apply = trim($_POST["how_to_apply"] ?? "");
     $status = $_POST["status"] ?? "active";
+
+
+    /* =========================
+       VALIDATION
+    ========================= */
 
     if ($title === "") {
         $errors[] = "Scholarship title is required.";
@@ -75,6 +85,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errors[] = "Invalid status selected.";
     }
 
+
+    /* =========================
+       INSERT
+    ========================= */
+
     if (empty($errors)) {
 
         try {
@@ -108,30 +123,50 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 )
             ");
 
+
             $stmt->execute([
+
                 ":title" => $title,
+
                 ":description" => $description,
+
                 ":amount" => $amount,
+
                 ":deadline" => $deadline,
+
                 ":eligible_countries" => $eligible_countries,
+
                 ":study_level" => $study_level,
+
                 ":requirements" => $requirements,
+
                 ":official_source" => $official_source,
+
                 ":how_to_apply" => $how_to_apply,
+
                 ":status" => $status
+
             ]);
 
-            $_SESSION["success"] = "Scholarship added successfully.";
+
+            $_SESSION["success"] =
+                "Scholarship added successfully.";
+
 
             header("Location: index.php");
+
             exit;
+
 
         } catch (PDOException $e) {
 
-            $errors[] = "Unable to add scholarship. Please try again.";
+            $errors[] =
+                "Unable to add scholarship. Please try again.";
 
         }
+
     }
+
 }
 
 ?>
@@ -148,19 +183,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Add Scholarship | Edworldly Consultancy</title>
+    <title>Add Scholarship | FSC Consultancy</title>
 
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
+    <!-- SAME CSS AS DASHBOARD -->
     <link
         rel="stylesheet"
         href="../../assets/css/admin.css"
     >
 
+
     <style>
+
+        /* =========================
+           PAGE HEADER
+        ========================= */
 
         .page-header {
             display: flex;
@@ -181,6 +222,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #7e8899;
         }
 
+
+        /* =========================
+           BACK BUTTON
+        ========================= */
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -198,6 +244,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: #f8f9fb;
         }
 
+
+        /* =========================
+           FORM CARD
+        ========================= */
+
         .form-card {
             background: #ffffff;
             border: 1px solid #e8ebf0;
@@ -212,6 +263,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .form-section:last-child {
             margin-bottom: 0;
         }
+
+
+        /* =========================
+           SECTION TITLE
+        ========================= */
 
         .form-section-title {
             display: flex;
@@ -239,6 +295,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #172033;
         }
 
+
+        /* =========================
+           FORM GRID
+        ========================= */
+
         .form-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -253,6 +314,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .form-group.full {
             grid-column: 1 / -1;
         }
+
+
+        /* =========================
+           FORM CONTROLS
+        ========================= */
 
         .form-group label {
             font-size: 12px;
@@ -277,12 +343,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: #ffffff;
             outline: none;
             transition: 0.2s ease;
-            box-sizing: border-box;
         }
 
         .form-control:focus {
             border-color: #172033;
-            box-shadow: 0 0 0 3px rgba(23, 32, 51, 0.07);
+            box-shadow:
+                0 0 0 3px rgba(23, 32, 51, 0.07);
         }
 
         textarea.form-control {
@@ -300,6 +366,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #98a2b3;
             font-size: 11px;
         }
+
+
+        /* =========================
+           ERRORS
+        ========================= */
 
         .error-box {
             background: #fff1f1;
@@ -326,6 +397,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             margin: 4px 0;
         }
 
+
+        /* =========================
+           ACTIONS
+        ========================= */
+
         .form-actions {
             display: flex;
             align-items: center;
@@ -343,6 +419,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #475467;
             font-size: 13px;
             font-weight: 600;
+        }
+
+        .cancel-btn:hover {
+            background: #f8f9fb;
         }
 
         .save-btn {
@@ -363,6 +443,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: #27344d;
         }
 
+
+        /* =========================
+           MOBILE
+        ========================= */
+
         @media (max-width: 700px) {
 
             .form-grid {
@@ -382,6 +467,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 flex-direction: column;
             }
 
+            .back-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .cancel-btn,
+            .save-btn {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+
         }
 
     </style>
@@ -392,19 +494,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <div class="admin-layout">
 
-    <!-- SIDEBAR -->
 
-    <aside class="sidebar">
+    <!-- =========================
+         EXACT DASHBOARD SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar" id="sidebar">
 
         <div class="sidebar-brand">
 
             <div class="brand-icon">
+
                 <i class="fa-solid fa-graduation-cap"></i>
+
             </div>
 
             <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+
+                <h2>Foreign Study</h2>
+
+                <span>Consultant</span>
+
             </div>
 
         </div>
@@ -412,48 +522,57 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <nav class="sidebar-nav">
 
-            <a href="../dashboard.php" class="nav-item">
-
+            <a
+                href="../dashboard.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-chart-line"></i>
-
                 <span>Dashboard</span>
-
             </a>
 
 
-            <a href="../courses/index.php" class="nav-item">
-
+            <a
+                href="../courses/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-book-open"></i>
-
                 <span>Courses</span>
-
             </a>
 
 
-            <a href="../destinations/index.php" class="nav-item">
-
+            <a
+                href="../destinations/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-earth-americas"></i>
-
                 <span>Destinations</span>
-
             </a>
 
 
-            <a href="../universities/index.php" class="nav-item">
-
+            <a
+                href="../universities/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-building-columns"></i>
-
                 <span>Universities</span>
-
             </a>
 
 
-            <a href="index.php" class="nav-item active">
-
+            <a
+                href="../scholarships/index.php"
+                class="nav-item active"
+            >
                 <i class="fa-solid fa-award"></i>
-
                 <span>Scholarships</span>
+            </a>
 
+
+            <a
+                href="../contact-messages/index.php"
+                class="nav-item"
+            >
+                <i class="fa-solid fa-envelope"></i>
+                <span>Contact Messages</span>
             </a>
 
         </nav>
@@ -472,7 +591,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars(
+                            $_SESSION["admin_username"] ?? "Admin"
+                        ) ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -482,11 +603,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
 
-            <a href="../logout.php" class="logout-btn">
+            <a
+                href="../change-password.php"
+                class="change-password-btn"
+            >
+
+                <i class="fa-solid fa-key"></i>
+
+                <span>Change Password</span>
+
+            </a>
+
+
+            <a
+                href="../logout.php"
+                class="logout-btn"
+            >
 
                 <i class="fa-solid fa-right-from-bracket"></i>
 
-                Logout
+                <span>Logout</span>
 
             </a>
 
@@ -495,19 +631,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </aside>
 
 
-    <!-- MAIN -->
+    <!-- =========================
+         MAIN
+    ========================== -->
 
     <main class="main-content">
 
+
+        <!-- TOPBAR -->
+
         <header class="topbar">
 
-            <div>
+            <div class="topbar-left">
 
-                <h1>Add Scholarship</h1>
+                <button
+                    type="button"
+                    class="mobile-menu-btn"
+                    id="mobileMenuBtn"
+                    aria-label="Open menu"
+                >
+                    <i class="fa-solid fa-bars"></i>
+                </button>
 
-                <p>
-                    Create a new scholarship opportunity.
-                </p>
+                <div>
+
+                    <h1>Add Scholarship</h1>
+
+                    <p>
+                        Create a new scholarship opportunity.
+                    </p>
+
+                </div>
 
             </div>
 
@@ -527,6 +681,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </header>
 
 
+        <!-- CONTENT -->
+
         <section class="content">
 
 
@@ -543,7 +699,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
 
 
-                <a href="index.php" class="back-btn">
+                <a
+                    href="index.php"
+                    class="back-btn"
+                >
 
                     <i class="fa-solid fa-arrow-left"></i>
 
@@ -553,6 +712,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             </div>
 
+
+            <!-- ERRORS -->
 
             <?php if (!empty($errors)): ?>
 
@@ -565,6 +726,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         Please fix the following errors:
 
                     </div>
+
 
                     <ul>
 
@@ -583,9 +745,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <?php endif; ?>
 
 
+            <!-- FORM -->
+
             <div class="form-card">
 
                 <form method="POST">
+
 
                     <!-- BASIC INFORMATION -->
 
@@ -652,7 +817,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
 
 
-                    <!-- FUNDING & DEADLINE -->
+                    <!-- FUNDING -->
 
                     <div class="form-section">
 
@@ -978,9 +1143,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <div class="form-actions">
 
-                        <a href="index.php" class="cancel-btn">
+                        <a
+                            href="index.php"
+                            class="cancel-btn"
+                        >
                             Cancel
                         </a>
+
 
                         <button
                             type="submit"
@@ -1004,7 +1173,60 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     </main>
 
+
+    <!-- MOBILE OVERLAY -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
 </div>
+
+
+<script>
+
+    const mobileMenuBtn =
+        document.getElementById("mobileMenuBtn");
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    const sidebarOverlay =
+        document.getElementById("sidebarOverlay");
+
+
+    mobileMenuBtn.addEventListener("click", function () {
+
+        sidebar.classList.add("open");
+        sidebarOverlay.classList.add("show");
+
+    });
+
+
+    sidebarOverlay.addEventListener("click", function () {
+
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("show");
+
+    });
+
+
+    document
+        .querySelectorAll(".sidebar .nav-item")
+        .forEach(function (item) {
+
+            item.addEventListener("click", function () {
+
+                sidebar.classList.remove("open");
+                sidebarOverlay.classList.remove("show");
+
+            });
+
+        });
+
+</script>
+
 
 </body>
 

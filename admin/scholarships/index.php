@@ -19,7 +19,7 @@ try {
         ORDER BY created_at DESC
     ");
 
-    $scholarships = $stmt->fetchAll();
+    $scholarships = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
 
@@ -46,19 +46,24 @@ unset($_SESSION["success"], $_SESSION["error"]);
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Scholarships | Edworldly Consultancy</title>
+    <title>Scholarships | FSC Consultancy</title>
 
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
+    <!-- SAME CSS AS DASHBOARD -->
     <link
         rel="stylesheet"
         href="../../assets/css/admin.css"
     >
 
     <style>
+
+        /* =========================
+           PAGE HEADER
+        ========================= */
 
         .page-header {
             display: flex;
@@ -96,6 +101,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             background: #27344d;
         }
 
+
+        /* =========================
+           ALERTS
+        ========================= */
+
         .alert {
             padding: 13px 16px;
             border-radius: 8px;
@@ -117,6 +127,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             color: #b42318;
             border: 1px solid #ffd6d3;
         }
+
+
+        /* =========================
+           TABLE
+        ========================= */
 
         .table-card {
             background: #ffffff;
@@ -204,6 +219,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             color: #475467;
         }
 
+
+        /* =========================
+           STUDY LEVEL
+        ========================= */
+
         .study-level {
             display: inline-flex;
             padding: 5px 9px;
@@ -213,6 +233,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             font-size: 10px;
             font-weight: 600;
         }
+
+
+        /* =========================
+           SOURCE
+        ========================= */
 
         .source-link {
             display: inline-flex;
@@ -226,6 +251,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
         .source-link:hover {
             text-decoration: underline;
         }
+
+
+        /* =========================
+           STATUS
+        ========================= */
 
         .status-badge {
             display: inline-flex;
@@ -253,6 +283,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             border-radius: 50%;
             background: currentColor;
         }
+
+
+        /* =========================
+           ACTIONS
+        ========================= */
 
         .actions {
             display: flex;
@@ -288,6 +323,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
         .delete-btn:hover {
             background: #ffe4e6;
         }
+
+
+        /* =========================
+           EMPTY STATE
+        ========================= */
 
         .empty-state {
             padding: 70px 20px;
@@ -331,6 +371,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             font-weight: 600;
         }
 
+
+        /* =========================
+           MOBILE
+        ========================= */
+
         @media (max-width: 650px) {
 
             .page-header {
@@ -343,6 +388,10 @@ unset($_SESSION["success"], $_SESSION["error"]);
                 justify-content: center;
             }
 
+            .table-top {
+                gap: 10px;
+            }
+
         }
 
     </style>
@@ -353,9 +402,12 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
 <div class="admin-layout">
 
-    <!-- SIDEBAR -->
 
-    <aside class="sidebar">
+    <!-- =========================
+         EXACT DASHBOARD SIDEBAR
+    ========================== -->
+
+    <aside class="sidebar" id="sidebar">
 
         <div class="sidebar-brand">
 
@@ -364,8 +416,11 @@ unset($_SESSION["success"], $_SESSION["error"]);
             </div>
 
             <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+
+                <h2>Foreign Study</h2>
+
+                <span>Consultant</span>
+
             </div>
 
         </div>
@@ -373,48 +428,57 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
         <nav class="sidebar-nav">
 
-            <a href="../dashboard.php" class="nav-item">
-
+            <a
+                href="../dashboard.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-chart-line"></i>
-
                 <span>Dashboard</span>
-
             </a>
 
 
-            <a href="../courses/index.php" class="nav-item">
-
+            <a
+                href="../courses/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-book-open"></i>
-
                 <span>Courses</span>
-
             </a>
 
 
-            <a href="../destinations/index.php" class="nav-item">
-
+            <a
+                href="../destinations/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-earth-americas"></i>
-
                 <span>Destinations</span>
-
             </a>
 
 
-            <a href="../universities/index.php" class="nav-item">
-
+            <a
+                href="../universities/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-building-columns"></i>
-
                 <span>Universities</span>
-
             </a>
 
 
-            <a href="index.php" class="nav-item active">
-
+            <a
+                href="index.php"
+                class="nav-item active"
+            >
                 <i class="fa-solid fa-award"></i>
-
                 <span>Scholarships</span>
+            </a>
 
+
+            <a
+                href="../contact-messages/index.php"
+                class="nav-item"
+            >
+                <i class="fa-solid fa-envelope"></i>
+                <span>Contact Messages</span>
             </a>
 
         </nav>
@@ -433,7 +497,9 @@ unset($_SESSION["success"], $_SESSION["error"]);
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars(
+                            $_SESSION["admin_username"] ?? "Admin"
+                        ) ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -443,11 +509,26 @@ unset($_SESSION["success"], $_SESSION["error"]);
             </div>
 
 
-            <a href="../logout.php" class="logout-btn">
+            <a
+                href="../change-password.php"
+                class="change-password-btn"
+            >
+
+                <i class="fa-solid fa-key"></i>
+
+                <span>Change Password</span>
+
+            </a>
+
+
+            <a
+                href="../logout.php"
+                class="logout-btn"
+            >
 
                 <i class="fa-solid fa-right-from-bracket"></i>
 
-                Logout
+                <span>Logout</span>
 
             </a>
 
@@ -456,7 +537,9 @@ unset($_SESSION["success"], $_SESSION["error"]);
     </aside>
 
 
-    <!-- MAIN -->
+    <!-- =========================
+         MAIN
+    ========================== -->
 
     <main class="main-content">
 
@@ -522,7 +605,10 @@ unset($_SESSION["success"], $_SESSION["error"]);
                 </div>
 
 
-                <a href="add.php" class="add-btn">
+                <a
+                    href="add.php"
+                    class="add-btn"
+                >
 
                     <i class="fa-solid fa-plus"></i>
 
@@ -533,7 +619,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
             </div>
 
 
-            <!-- FLASH MESSAGE -->
+            <!-- SUCCESS -->
 
             <?php if ($success): ?>
 
@@ -547,6 +633,8 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
             <?php endif; ?>
 
+
+            <!-- ERROR -->
 
             <?php if ($error): ?>
 
@@ -579,7 +667,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
                 </div>
 
 
-                <?php if (count($scholarships) > 0): ?>
+                <?php if (!empty($scholarships)): ?>
 
                     <div class="table-wrapper">
 
@@ -616,6 +704,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                 <tr>
 
+
                                     <td>
                                         <?= $index + 1 ?>
                                     </td>
@@ -625,7 +714,9 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                         <div class="scholarship-title">
 
-                                            <?= htmlspecialchars($scholarship["title"]) ?>
+                                            <?= htmlspecialchars(
+                                                $scholarship["title"] ?? ""
+                                            ) ?>
 
                                         </div>
 
@@ -636,7 +727,9 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                         <div class="amount-text">
 
-                                            <?= htmlspecialchars($scholarship["amount"]) ?>
+                                            <?= htmlspecialchars(
+                                                $scholarship["amount"] ?? ""
+                                            ) ?>
 
                                         </div>
 
@@ -647,10 +740,24 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                         <div class="deadline-text">
 
-                                            <?= date(
-                                                "d M Y",
-                                                strtotime($scholarship["deadline"])
-                                            ) ?>
+                                            <?php
+
+                                            if (!empty($scholarship["deadline"])) {
+
+                                                echo htmlspecialchars(
+                                                    date(
+                                                        "d M Y",
+                                                        strtotime($scholarship["deadline"])
+                                                    )
+                                                );
+
+                                            } else {
+
+                                                echo "—";
+
+                                            }
+
+                                            ?>
 
                                         </div>
 
@@ -661,7 +768,9 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                         <span class="study-level">
 
-                                            <?= htmlspecialchars($scholarship["study_level"]) ?>
+                                            <?= htmlspecialchars(
+                                                $scholarship["study_level"] ?? ""
+                                            ) ?>
 
                                         </span>
 
@@ -674,10 +783,14 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                             <?php
 
-                                            $countries = $scholarship["eligible_countries"];
+                                            $countries =
+                                                $scholarship["eligible_countries"] ?? "";
 
                                             if (strlen($countries) > 45) {
-                                                $countries = substr($countries, 0, 45) . "...";
+
+                                                $countries =
+                                                    substr($countries, 0, 45) . "...";
+
                                             }
 
                                             echo htmlspecialchars($countries);
@@ -691,7 +804,9 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                     <td>
 
-                                        <?php if ($scholarship["status"] === "active"): ?>
+                                        <?php if (
+                                            ($scholarship["status"] ?? "") === "active"
+                                        ): ?>
 
                                             <span class="status-badge active">
 
@@ -725,9 +840,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
                                                 class="action-btn edit-btn"
                                                 title="Edit Scholarship"
                                             >
-
                                                 <i class="fa-solid fa-pen"></i>
-
                                             </a>
 
 
@@ -737,9 +850,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
                                                 title="Delete Scholarship"
                                                 onclick="return confirm('Are you sure you want to delete this scholarship?');"
                                             >
-
                                                 <i class="fa-solid fa-trash"></i>
-
                                             </a>
 
                                         </div>
@@ -772,7 +883,10 @@ unset($_SESSION["success"], $_SESSION["error"]);
                             You haven't added any scholarships yet.
                         </p>
 
-                        <a href="add.php" class="add-btn-small">
+                        <a
+                            href="add.php"
+                            class="add-btn-small"
+                        >
 
                             <i class="fa-solid fa-plus"></i>
 
@@ -792,7 +906,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
     </main>
 
 
-    <!-- MOBILE SIDEBAR OVERLAY -->
+    <!-- MOBILE OVERLAY -->
 
     <div
         class="sidebar-overlay"
@@ -804,36 +918,47 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
 <script>
 
-    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-    const sidebar = document.querySelector(".sidebar");
-    const sidebarOverlay = document.getElementById("sidebarOverlay");
+    const mobileMenuBtn =
+        document.getElementById("mobileMenuBtn");
+
+    const sidebar =
+        document.getElementById("sidebar");
+
+    const sidebarOverlay =
+        document.getElementById("sidebarOverlay");
+
 
     mobileMenuBtn.addEventListener("click", function () {
 
-        sidebar.classList.add("mobile-open");
-        sidebarOverlay.classList.add("active");
+        sidebar.classList.add("open");
+        sidebarOverlay.classList.add("show");
 
     });
+
 
     sidebarOverlay.addEventListener("click", function () {
 
-        sidebar.classList.remove("mobile-open");
-        sidebarOverlay.classList.remove("active");
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("show");
 
     });
 
-    document.querySelectorAll(".sidebar .nav-item").forEach(function (item) {
 
-        item.addEventListener("click", function () {
+    document
+        .querySelectorAll(".sidebar .nav-item")
+        .forEach(function (item) {
 
-            sidebar.classList.remove("mobile-open");
-            sidebarOverlay.classList.remove("active");
+            item.addEventListener("click", function () {
+
+                sidebar.classList.remove("open");
+                sidebarOverlay.classList.remove("show");
+
+            });
 
         });
 
-    });
-
 </script>
+
 
 </body>
 

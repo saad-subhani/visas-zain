@@ -63,7 +63,13 @@ try {
         exit;
     }
 
-    if ($scholarship["status"] !== "active") {
+    /*
+     * Database status may be stored as:
+     * Active / active / ACTIVE
+     *
+     * Normalize it before checking.
+     */
+    if (strtolower(trim($scholarship["status"])) !== "active") {
         http_response_code(404);
 
         echo json_encode([

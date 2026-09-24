@@ -13,12 +13,29 @@ $coursesCount = 0;
 $destinationsCount = 0;
 $universitiesCount = 0;
 $scholarshipsCount = 0;
+$messagesCount = 0;
 
 try {
-    $coursesCount = $pdo->query("SELECT COUNT(*) FROM courses")->fetchColumn();
-    $destinationsCount = $pdo->query("SELECT COUNT(*) FROM destinations")->fetchColumn();
-    $universitiesCount = $pdo->query("SELECT COUNT(*) FROM universities")->fetchColumn();
-    $scholarshipsCount = $pdo->query("SELECT COUNT(*) FROM scholarships")->fetchColumn();
+    $coursesCount = $pdo->query(
+        "SELECT COUNT(*) FROM courses"
+    )->fetchColumn();
+
+    $destinationsCount = $pdo->query(
+        "SELECT COUNT(*) FROM destinations"
+    )->fetchColumn();
+
+    $universitiesCount = $pdo->query(
+        "SELECT COUNT(*) FROM universities"
+    )->fetchColumn();
+
+    $scholarshipsCount = $pdo->query(
+        "SELECT COUNT(*) FROM scholarships"
+    )->fetchColumn();
+
+    $messagesCount = $pdo->query(
+        "SELECT COUNT(*) FROM contact_messages WHERE status = 'New'"
+    )->fetchColumn();
+
 } catch (PDOException $e) {
     $error = "Unable to load dashboard statistics.";
 }
@@ -37,7 +54,7 @@ try {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Dashboard | Edworldly Consultancy</title>
+    <title>Dashboard | FSC Consultancy</title>
 
     <link
         rel="stylesheet"
@@ -47,10 +64,6 @@ try {
     <link rel="stylesheet" href="../assets/css/admin.css">
 
     <style>
-
-        /* =========================================
-           MOBILE HEADER / HAMBURGER
-        ========================================= */
 
         .mobile-header {
             display: none;
@@ -62,7 +75,7 @@ try {
             border: 1px solid #e1e5eb;
             border-radius: 8px;
             background: #ffffff;
-            color: #172033;
+            color: #102f52;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -74,42 +87,37 @@ try {
             display: none;
         }
 
-/* =========================================
-   CHANGE PASSWORD BUTTON
-========================================= */
+        .change-password-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 11px 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #102f52;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #e8ebf0;
+            transition: all 0.2s ease;
+        }
 
-.change-password-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 11px 14px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    background: #ffffff;
-    color: #172033;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    border: 1px solid #e8ebf0;
-    transition: all 0.2s ease;
-}
+        .change-password-btn:hover {
+            background: #102f52;
+            color: #ffffff;
+            border-color: #102f52;
+        }
 
-.change-password-btn:hover {
-    background: #16a34a;
-    color: #ffffff;
-    border-color: #16a34a;
-}
+        .change-password-btn i {
+            width: 18px;
+            text-align: center;
+        }
 
-.change-password-btn i {
-    width: 18px;
-    text-align: center;
-}
-
-
-        /* =========================================
-           RESPONSIVE
-        ========================================= */
+        .message-stat {
+            position: relative;
+        }
 
         @media (max-width: 900px) {
 
@@ -165,7 +173,7 @@ try {
                 width: 34px;
                 height: 34px;
                 border-radius: 8px;
-                background: #172033;
+                background: #102f52;
                 color: #ffffff;
                 display: flex;
                 align-items: center;
@@ -176,7 +184,7 @@ try {
             .mobile-brand-text h2 {
                 margin: 0;
                 font-size: 15px;
-                color: #172033;
+                color: #102f52;
             }
 
             .mobile-brand-text span {
@@ -191,7 +199,6 @@ try {
             }
 
         }
-
 
         @media (max-width: 650px) {
 
@@ -237,7 +244,6 @@ try {
 
         }
 
-
         @media (max-width: 420px) {
 
             .mobile-header {
@@ -257,6 +263,9 @@ try {
             }
 
         }
+        .sidebar-brand{
+            color:rgb(14, 171, 214);
+        }
 
     </style>
 
@@ -265,7 +274,6 @@ try {
 <body>
 
 <div class="admin-layout">
-
 
     <!-- SIDEBAR -->
 
@@ -278,95 +286,78 @@ try {
             </div>
 
             <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+                <h2>Foreign Study</h2>
+                <span>Consultant</span>
             </div>
 
         </div>
 
-
         <nav class="sidebar-nav">
 
-            <a href="dashboard.php" class="nav-item active">
-
+            <a
+                href="dashboard.php"
+                class="nav-item active"
+            >
                 <i class="fa-solid fa-chart-line"></i>
-
                 <span>Dashboard</span>
-
             </a>
 
-
-            <a href="courses/index.php" class="nav-item">
-
+            <a
+                href="courses/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-book-open"></i>
-
                 <span>Courses</span>
-
             </a>
 
-
-            <a href="destinations/index.php" class="nav-item">
-
+            <a
+                href="destinations/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-earth-americas"></i>
-
                 <span>Destinations</span>
-
             </a>
 
-
-            <a href="universities/index.php" class="nav-item">
-
+            <a
+                href="universities/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-building-columns"></i>
-
                 <span>Universities</span>
-
             </a>
 
-
-            <a href="scholarships/index.php" class="nav-item">
-
+            <a
+                href="scholarships/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-award"></i>
-
                 <span>Scholarships</span>
-
             </a>
 
-
-            <a href="contact-messages/index.php" class="nav-item">
-
+            <a
+                href="contact-messages/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-envelope"></i>
-
                 <span>Contact Messages</span>
-
             </a>
-
-
-
-         <a href="assessments/index.php" class="nav-item">
-
-                <i class="fa-solid fa-envelope"></i>
-
-                <span>Assessments</span>
-
-            </a>      
 
         </nav>
-
 
         <div class="sidebar-bottom">
 
             <div class="admin-user">
 
                 <div class="user-avatar">
-
                     <i class="fa-solid fa-user"></i>
-
                 </div>
 
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars(
+                            $_SESSION["admin_username"] ?? "Admin"
+                        ) ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -375,32 +366,25 @@ try {
 
             </div>
 
-
-            <!-- CHANGE PASSWORD -->
-
-            <a href="change-password.php" class="change-password-btn">
-
+            <a
+                href="change-password.php"
+                class="change-password-btn"
+            >
                 <i class="fa-solid fa-key"></i>
-
                 <span>Change Password</span>
-
             </a>
 
-
-            <!-- LOGOUT -->
-
-            <a href="logout.php" class="logout-btn">
-
+            <a
+                href="logout.php"
+                class="logout-btn"
+            >
                 <i class="fa-solid fa-right-from-bracket"></i>
-
                 Logout
-
             </a>
 
         </div>
 
     </aside>
-
 
     <!-- SIDEBAR OVERLAY -->
 
@@ -410,11 +394,9 @@ try {
         onclick="closeSidebar()"
     ></div>
 
-
     <!-- MAIN CONTENT -->
 
     <main class="main-content">
-
 
         <!-- MOBILE HEADER -->
 
@@ -423,21 +405,18 @@ try {
             <div class="mobile-brand">
 
                 <div class="mobile-brand-icon">
-
                     <i class="fa-solid fa-graduation-cap"></i>
-
                 </div>
 
                 <div class="mobile-brand-text">
 
-                    <h2>Edworldly</h2>
+                    <h2>FSC Consultancy</h2>
 
-                    <span>Consultancy</span>
+                    <span>Admin Panel</span>
 
                 </div>
 
             </div>
-
 
             <button
                 type="button"
@@ -445,15 +424,12 @@ try {
                 onclick="toggleSidebar()"
                 aria-label="Open menu"
             >
-
                 <i class="fa-solid fa-bars"></i>
-
             </button>
 
         </div>
 
-
-        <!-- TOP NAVBAR -->
+        <!-- TOPBAR -->
 
         <header class="topbar">
 
@@ -463,11 +439,12 @@ try {
 
                 <p>
                     Welcome back,
-                    <?= htmlspecialchars($_SESSION["admin_username"]) ?>.
+                    <?= htmlspecialchars(
+                        $_SESSION["admin_username"] ?? "Admin"
+                    ) ?>.
                 </p>
 
             </div>
-
 
             <div class="topbar-right">
 
@@ -483,11 +460,9 @@ try {
 
         </header>
 
-
         <!-- CONTENT -->
 
         <section class="content">
-
 
             <?php if (isset($error)): ?>
 
@@ -501,20 +476,15 @@ try {
 
             <?php endif; ?>
 
-
             <!-- STAT CARDS -->
 
             <div class="stats-grid">
 
-
                 <div class="stat-card">
 
                     <div class="stat-icon courses-icon">
-
                         <i class="fa-solid fa-book-open"></i>
-
                     </div>
-
 
                     <div class="stat-info">
 
@@ -526,27 +496,20 @@ try {
 
                     </div>
 
-
                     <a
                         href="courses/index.php"
                         class="stat-link"
                     >
-
                         <i class="fa-solid fa-arrow-right"></i>
-
                     </a>
 
                 </div>
 
-
                 <div class="stat-card">
 
                     <div class="stat-icon destinations-icon">
-
                         <i class="fa-solid fa-earth-americas"></i>
-
                     </div>
-
 
                     <div class="stat-info">
 
@@ -558,27 +521,20 @@ try {
 
                     </div>
 
-
                     <a
                         href="destinations/index.php"
                         class="stat-link"
                     >
-
                         <i class="fa-solid fa-arrow-right"></i>
-
                     </a>
 
                 </div>
 
-
                 <div class="stat-card">
 
                     <div class="stat-icon universities-icon">
-
                         <i class="fa-solid fa-building-columns"></i>
-
                     </div>
-
 
                     <div class="stat-info">
 
@@ -590,27 +546,20 @@ try {
 
                     </div>
 
-
                     <a
                         href="universities/index.php"
                         class="stat-link"
                     >
-
                         <i class="fa-solid fa-arrow-right"></i>
-
                     </a>
 
                 </div>
 
-
                 <div class="stat-card">
 
                     <div class="stat-icon scholarships-icon">
-
                         <i class="fa-solid fa-award"></i>
-
                     </div>
-
 
                     <div class="stat-info">
 
@@ -622,22 +571,43 @@ try {
 
                     </div>
 
-
                     <a
                         href="scholarships/index.php"
                         class="stat-link"
                     >
-
                         <i class="fa-solid fa-arrow-right"></i>
+                    </a>
 
+                </div>
+
+                <div class="stat-card message-stat">
+
+                    <div class="stat-icon">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+
+                    <div class="stat-info">
+
+                        <span>New Messages</span>
+
+                        <h2>
+                            <?= (int) $messagesCount ?>
+                        </h2>
+
+                    </div>
+
+                    <a
+                        href="contact-messages/index.php"
+                        class="stat-link"
+                    >
+                        <i class="fa-solid fa-arrow-right"></i>
                     </a>
 
                 </div>
 
             </div>
 
-
-            <!-- WELCOME SECTION -->
+            <!-- WELCOME -->
 
             <div class="welcome-card">
 
@@ -652,21 +622,18 @@ try {
                     </h2>
 
                     <p>
-                        Manage courses, destinations, universities and
-                        scholarships from one centralized dashboard.
+                        Manage courses, destinations, universities,
+                        scholarships and student enquiries from one
+                        centralized dashboard.
                     </p>
 
                 </div>
 
-
                 <div class="welcome-icon">
-
                     <i class="fa-solid fa-globe"></i>
-
                 </div>
 
             </div>
-
 
             <!-- QUICK ACTIONS -->
 
@@ -684,9 +651,7 @@ try {
 
             </div>
 
-
             <div class="quick-actions">
-
 
                 <a
                     href="courses/add.php"
@@ -694,11 +659,8 @@ try {
                 >
 
                     <div class="quick-icon">
-
                         <i class="fa-solid fa-plus"></i>
-
                     </div>
-
 
                     <div>
 
@@ -710,11 +672,9 @@ try {
 
                     </div>
 
-
                     <i class="fa-solid fa-arrow-right"></i>
 
                 </a>
-
 
                 <a
                     href="destinations/add.php"
@@ -722,11 +682,8 @@ try {
                 >
 
                     <div class="quick-icon">
-
                         <i class="fa-solid fa-earth-americas"></i>
-
                     </div>
-
 
                     <div>
 
@@ -738,11 +695,9 @@ try {
 
                     </div>
 
-
                     <i class="fa-solid fa-arrow-right"></i>
 
                 </a>
-
 
                 <a
                     href="universities/add.php"
@@ -750,11 +705,8 @@ try {
                 >
 
                     <div class="quick-icon">
-
                         <i class="fa-solid fa-building-columns"></i>
-
                     </div>
-
 
                     <div>
 
@@ -766,11 +718,9 @@ try {
 
                     </div>
 
-
                     <i class="fa-solid fa-arrow-right"></i>
 
                 </a>
-
 
                 <a
                     href="scholarships/add.php"
@@ -778,11 +728,8 @@ try {
                 >
 
                     <div class="quick-icon">
-
                         <i class="fa-solid fa-award"></i>
-
                     </div>
-
 
                     <div>
 
@@ -794,21 +741,40 @@ try {
 
                     </div>
 
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+                <a
+                    href="contact-messages/index.php"
+                    class="quick-card"
+                >
+
+                    <div class="quick-icon">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+
+                    <div>
+
+                        <h3>View Messages</h3>
+
+                        <p>
+                            Check student enquiries
+                        </p>
+
+                    </div>
 
                     <i class="fa-solid fa-arrow-right"></i>
 
                 </a>
 
-
             </div>
-
 
         </section>
 
     </main>
 
 </div>
-
 
 <script>
 
@@ -822,7 +788,6 @@ function toggleSidebar() {
 
 }
 
-
 function closeSidebar() {
 
     const sidebar = document.getElementById("sidebar");
@@ -833,38 +798,27 @@ function closeSidebar() {
 
 }
 
-
-/* Close sidebar after clicking a navigation link on mobile */
-
 document.querySelectorAll(".sidebar .nav-item").forEach(function (link) {
 
     link.addEventListener("click", function () {
 
         if (window.innerWidth <= 900) {
-
             closeSidebar();
-
         }
 
     });
 
 });
 
-
-/* Close sidebar if screen becomes desktop */
-
 window.addEventListener("resize", function () {
 
     if (window.innerWidth > 900) {
-
         closeSidebar();
-
     }
 
 });
 
 </script>
-
 
 </body>
 

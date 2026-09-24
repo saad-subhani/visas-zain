@@ -9,17 +9,22 @@ if (!isset($_SESSION["admin_id"])) {
 
 require_once __DIR__ . "/../../config/db.php";
 
-$id = (int) ($_GET["id"] ?? 0);
+$id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
 
-if ($id <= 0) {
-    $_SESSION["error"] = "Invalid destination.";
+if (!$id) {
+
+    $_SESSION["error"] = "Invalid destination ID.";
+
     header("Location: index.php");
     exit;
 }
 
 try {
 
-    // Get destination image before deleting the record
+    /* =========================
+       GET DESTINATION
+    ========================= */
+
     $stmt = $pdo->prepare("
         SELECT image_url
         FROM destinations
@@ -33,12 +38,17 @@ try {
     $destination = $stmt->fetch();
 
     if (!$destination) {
+
         $_SESSION["error"] = "Destination not found.";
+
         header("Location: index.php");
         exit;
     }
 
-    // Delete destination from database
+    /* =========================
+       DELETE DATABASE RECORD
+    ========================= */
+
     $delete = $pdo->prepare("
         DELETE FROM destinations
         WHERE id = :id
@@ -48,25 +58,45 @@ try {
         ":id" => $id
     ]);
 
-    // Delete uploaded image from server
+    /* =========================
+       DELETE IMAGE
+    ========================= */
+
     if (!empty($destination["image_url"])) {
 
-        $imagePath = __DIR__ . "/../../" . ltrim(
-            $destination["image_url"],
-            "/"
+        /*
+         * Database example:
+         * ../../uploads/destinations/file.jpg
+         *
+         * Convert it to:
+         * uploads/destinations/file.jpg
+         */
+
+        $relativeImagePath = str_replace(
+            "../../",
+            "",
+            $destination["image_url"]
         );
 
-        if (file_exists($imagePath)) {
+        $imagePath =
+            __DIR__ . "/../../" . $relativeImagePath;
+
+        if (
+            file_exists($imagePath) &&
+            is_file($imagePath)
+        ) {
+
             unlink($imagePath);
         }
     }
 
-    $_SESSION["success"] = "Destination deleted successfully.";
+    $_SESSION["success"] =
+        "Destination deleted successfully.";
 
 } catch (PDOException $e) {
 
-    $_SESSION["error"] = "Unable to delete destination. Please try again.";
-
+    $_SESSION["error"] =
+        "Unable to delete destination. Please try again.";
 }
 
 header("Location: index.php");

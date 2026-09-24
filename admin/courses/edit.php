@@ -1,4 +1,3 @@
-```php
 <?php
 
 session_start();
@@ -19,7 +18,9 @@ if (!$id) {
 }
 
 $stmt = $pdo->prepare("SELECT * FROM courses WHERE id = :id");
-$stmt->execute([":id" => $id]);
+$stmt->execute([
+    ":id" => $id
+]);
 
 $course = $stmt->fetch();
 
@@ -48,7 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $title = trim($_POST["title"] ?? "");
 
-    // Automatically generate slug from course title
     $slug = strtolower(trim($title));
     $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
     $slug = trim($slug, '-');
@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $tuition_fee = trim($_POST["tuition_fee"] ?? "");
     $duration = trim($_POST["duration"] ?? "");
     $requirements = trim($_POST["requirements"] ?? "");
-    $status = $_POST["status"] ?? "active";
+    $status = $_POST["status"] ?? "Inactive";
 
     if ($title === "") {
         $errors[] = "Course title is required.";
@@ -108,11 +108,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errors[] = "Requirements are required.";
     }
 
-    if (!in_array($status, ["active", "inactive"], true)) {
+    if (!in_array($status, ["Active", "Inactive"], true)) {
         $errors[] = "Invalid status selected.";
     }
 
-    // Check if slug already exists for another course
     if (empty($errors)) {
 
         $slugCheck = $pdo->prepare("
@@ -180,7 +179,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } catch (PDOException $e) {
 
             $errors[] = "Unable to update course. Please try again.";
-
         }
     }
 }
@@ -199,7 +197,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Edit Course | Edworldly Consultancy</title>
+    <title>Edit Course | FSC Consultancy</title>
 
     <link
         rel="stylesheet"
@@ -243,6 +241,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
+            text-decoration: none;
         }
 
         .back-btn:hover {
@@ -380,6 +379,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         .cancel-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 11px 18px;
             border-radius: 8px;
             border: 1px solid #dfe3e9;
@@ -387,6 +389,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #475467;
             font-size: 13px;
             font-weight: 600;
+            text-decoration: none;
         }
 
         .save-btn {
@@ -407,80 +410,82 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             background: #27344d;
         }
 
-        /* MOBILE SIDEBAR */
+        /* MOBILE */
+
+        .mobile-header {
+            display: none;
+        }
 
         .mobile-menu-btn {
-            display: none;
             width: 40px;
             height: 40px;
             border: 1px solid #e1e5eb;
             border-radius: 8px;
             background: #ffffff;
-            color: #172033;
+            color: #102f52;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 17px;
             cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .sidebar-close-btn {
-            display: none;
         }
 
         .sidebar-overlay {
             display: none;
         }
 
-        @media (max-width: 700px) {
+        .change-password-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 11px 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #102f52;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #e8ebf0;
+            transition: all 0.2s ease;
+        }
 
-            .mobile-menu-btn {
-                display: inline-flex;
-            }
+        .change-password-btn:hover {
+            background: #102f52;
+            color: #ffffff;
+            border-color: #102f52;
+        }
+
+        .change-password-btn i {
+            width: 18px;
+            text-align: center;
+        }
+
+        @media (max-width: 900px) {
 
             .sidebar {
                 position: fixed;
                 top: 0;
                 left: 0;
-                width: 260px;
-                height: 100vh;
-                z-index: 1001;
+                bottom: 0;
+                z-index: 1000;
                 transform: translateX(-100%);
                 transition: transform 0.25s ease;
-                box-shadow: 8px 0 25px rgba(0, 0, 0, 0.12);
             }
 
-            .sidebar.mobile-open {
+            .sidebar.open {
                 transform: translateX(0);
-            }
-
-            .sidebar-close-btn {
-                display: flex;
-                position: absolute;
-                top: 15px;
-                right: 15px;
-                width: 32px;
-                height: 32px;
-                border: none;
-                border-radius: 7px;
-                background: #f2f4f7;
-                color: #172033;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                font-size: 14px;
-                z-index: 2;
             }
 
             .sidebar-overlay {
                 position: fixed;
                 inset: 0;
-                background: rgba(15, 23, 42, 0.45);
-                z-index: 1000;
-                display: none;
+                background: rgba(0, 0, 0, 0.35);
+                z-index: 999;
             }
 
-            .sidebar-overlay.active {
+            .sidebar-overlay.show {
                 display: block;
             }
 
@@ -489,23 +494,77 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 margin-left: 0;
             }
 
-            .topbar {
+            .mobile-header {
                 display: flex;
                 align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                background: #ffffff;
+                border-bottom: 1px solid #e8ebf0;
+                position: sticky;
+                top: 0;
+                z-index: 900;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .mobile-brand-icon {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                background: #102f52;
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }
+
+            .mobile-brand-text h2 {
+                margin: 0;
+                font-size: 15px;
+                color: #102f52;
+            }
+
+            .mobile-brand-text span {
+                display: block;
+                margin-top: 1px;
+                font-size: 10px;
+                color: #8a94a5;
+            }
+
+            .topbar {
+                padding-top: 18px;
+            }
+
+            .form-card {
+                padding: 20px;
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
                 gap: 12px;
             }
 
-            .topbar > div:first-child {
-                flex: 1;
-                min-width: 0;
-            }
-
-            .topbar h1 {
-                font-size: 19px;
-            }
-
             .topbar-right {
-                display: none;
+                width: 100%;
+            }
+
+            .topbar-date {
+                width: fit-content;
+            }
+
+            .content {
+                padding: 18px 14px;
             }
 
             .form-grid {
@@ -514,10 +573,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             .form-group.full {
                 grid-column: auto;
-            }
-
-            .form-card {
-                padding: 20px;
             }
 
             .page-header {
@@ -544,7 +599,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         }
 
-        @media (max-width: 400px) {
+        @media (max-width: 420px) {
+
+            .mobile-header {
+                padding: 10px 12px;
+            }
+
+            .content {
+                padding: 16px 12px;
+            }
 
             .form-card {
                 padding: 16px;
@@ -564,6 +627,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         }
 
+        .sidebar-brand {
+            color: rgb(14, 171, 214);
+        }
+
     </style>
 
 </head>
@@ -576,18 +643,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <aside class="sidebar" id="sidebar">
 
-        <!-- MOBILE CLOSE BUTTON -->
-
-        <button
-            type="button"
-            class="sidebar-close-btn"
-            id="sidebarClose"
-            aria-label="Close menu"
-        >
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-
-
         <div class="sidebar-brand">
 
             <div class="brand-icon">
@@ -595,42 +650,63 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <div>
-                <h2>Edworldly</h2>
+                <h2>FSC</h2>
                 <span>Consultancy</span>
             </div>
 
         </div>
 
-
         <nav class="sidebar-nav">
 
-            <a href="../dashboard.php" class="nav-item">
+            <a
+                href="../dashboard.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-chart-line"></i>
                 <span>Dashboard</span>
             </a>
 
-            <a href="index.php" class="nav-item active">
+            <a
+                href="index.php"
+                class="nav-item active"
+            >
                 <i class="fa-solid fa-book-open"></i>
                 <span>Courses</span>
             </a>
 
-            <a href="../destinations/index.php" class="nav-item">
+            <a
+                href="../destinations/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-earth-americas"></i>
                 <span>Destinations</span>
             </a>
 
-            <a href="../universities/index.php" class="nav-item">
+            <a
+                href="../universities/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-building-columns"></i>
                 <span>Universities</span>
             </a>
 
-            <a href="../scholarships/index.php" class="nav-item">
+            <a
+                href="../scholarships/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-award"></i>
                 <span>Scholarships</span>
             </a>
 
-        </nav>
+            <a
+                href="../contact-messages/index.php"
+                class="nav-item"
+            >
+                <i class="fa-solid fa-envelope"></i>
+                <span>Contact Messages</span>
+            </a>
 
+        </nav>
 
         <div class="sidebar-bottom">
 
@@ -643,7 +719,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars(
+                            $_SESSION["admin_username"] ?? "Admin"
+                        ) ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -652,45 +730,72 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             </div>
 
+            <a
+                href="../change-password.php"
+                class="change-password-btn"
+            >
+                <i class="fa-solid fa-key"></i>
+                <span>Change Password</span>
+            </a>
 
-            <a href="../logout.php" class="logout-btn">
-
+            <a
+                href="../logout.php"
+                class="logout-btn"
+            >
                 <i class="fa-solid fa-right-from-bracket"></i>
-
                 Logout
-
             </a>
 
         </div>
 
     </aside>
 
-
-    <!-- MOBILE OVERLAY -->
+    <!-- OVERLAY -->
 
     <div
         class="sidebar-overlay"
         id="sidebarOverlay"
+        onclick="closeSidebar()"
     ></div>
-
 
     <!-- MAIN -->
 
     <main class="main-content">
 
-        <header class="topbar">
+        <!-- MOBILE HEADER -->
 
-            <!-- MOBILE HAMBURGER -->
+        <div class="mobile-header">
+
+            <div class="mobile-brand">
+
+                <div class="mobile-brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+
+                <div class="mobile-brand-text">
+
+                    <h2>FSC Consultancy</h2>
+
+                    <span>Admin Panel</span>
+
+                </div>
+
+            </div>
 
             <button
                 type="button"
                 class="mobile-menu-btn"
-                id="sidebarOpen"
+                onclick="toggleSidebar()"
                 aria-label="Open menu"
             >
                 <i class="fa-solid fa-bars"></i>
             </button>
 
+        </div>
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
 
             <div>
 
@@ -701,7 +806,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </p>
 
             </div>
-
 
             <div class="topbar-right">
 
@@ -717,10 +821,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         </header>
 
+        <!-- CONTENT -->
 
         <section class="content">
-
-            <!-- PAGE HEADER -->
 
             <div class="page-header">
 
@@ -734,19 +837,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 </div>
 
-
-                <a href="index.php" class="back-btn">
-
+                <a
+                    href="index.php"
+                    class="back-btn"
+                >
                     <i class="fa-solid fa-arrow-left"></i>
-
                     Back to Courses
-
                 </a>
 
             </div>
-
-
-            <!-- ERRORS -->
 
             <?php if (!empty($errors)): ?>
 
@@ -776,13 +875,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <?php endif; ?>
 
-
-            <!-- FORM -->
-
             <div class="form-card">
 
                 <form method="POST">
-
 
                     <!-- BASIC INFORMATION -->
 
@@ -795,7 +890,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <h2>Basic Information</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
@@ -817,7 +911,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                             </div>
 
-
                             <div class="form-group full">
 
                                 <label for="description">
@@ -833,7 +926,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 ><?= htmlspecialchars($description) ?></textarea>
 
                             </div>
-
 
                             <div class="form-group">
 
@@ -878,7 +970,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                             </div>
 
-
                             <div class="form-group">
 
                                 <label for="field">
@@ -901,7 +992,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
                     <!-- STUDY DETAILS -->
 
                     <div class="form-section">
@@ -913,7 +1003,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <h2>Study Details</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
@@ -935,7 +1024,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                             </div>
 
-
                             <div class="form-group">
 
                                 <label for="language">
@@ -953,7 +1041,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 >
 
                             </div>
-
 
                             <div class="form-group">
 
@@ -973,7 +1060,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                             </div>
 
-
                             <div class="form-group">
 
                                 <label for="duration">
@@ -991,7 +1077,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 >
 
                             </div>
-
 
                             <div class="form-group">
 
@@ -1015,7 +1100,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
                     <!-- REQUIREMENTS -->
 
                     <div class="form-section">
@@ -1027,7 +1111,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <h2>Requirements</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
@@ -1051,7 +1134,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
                     <!-- STATUS -->
 
                     <div class="form-section">
@@ -1063,7 +1145,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <h2>Status</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
@@ -1082,15 +1163,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 >
 
                                     <option
-                                        value="active"
-                                        <?= $status === "active" ? "selected" : "" ?>
+                                        value="Active"
+                                        <?= $status === "Active" ? "selected" : "" ?>
                                     >
                                         Active
                                     </option>
 
                                     <option
-                                        value="inactive"
-                                        <?= $status === "inactive" ? "selected" : "" ?>
+                                        value="Inactive"
+                                        <?= $status === "Inactive" ? "selected" : "" ?>
                                     >
                                         Inactive
                                     </option>
@@ -1103,16 +1184,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
                     <!-- ACTIONS -->
 
                     <div class="form-actions">
 
-                        <a href="index.php" class="cancel-btn">
+                        <a
+                            href="index.php"
+                            class="cancel-btn"
+                        >
                             Cancel
                         </a>
 
-                        <button type="submit" class="save-btn">
+                        <button
+                            type="submit"
+                            class="save-btn"
+                        >
 
                             <i class="fa-solid fa-floppy-disk"></i>
 
@@ -1121,7 +1207,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </button>
 
                     </div>
-
 
                 </form>
 
@@ -1133,43 +1218,50 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 </div>
 
-
-<!-- MOBILE SIDEBAR SCRIPT -->
-
 <script>
 
+function toggleSidebar() {
+
     const sidebar = document.getElementById("sidebar");
-    const sidebarOpen = document.getElementById("sidebarOpen");
-    const sidebarClose = document.getElementById("sidebarClose");
-    const sidebarOverlay = document.getElementById("sidebarOverlay");
+    const overlay = document.getElementById("sidebarOverlay");
 
-    function openSidebar() {
-        sidebar.classList.add("mobile-open");
-        sidebarOverlay.classList.add("active");
-        document.body.style.overflow = "hidden";
-    }
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
 
-    function closeSidebar() {
-        sidebar.classList.remove("mobile-open");
-        sidebarOverlay.classList.remove("active");
-        document.body.style.overflow = "";
-    }
+}
 
-    sidebarOpen.addEventListener("click", openSidebar);
+function closeSidebar() {
 
-    sidebarClose.addEventListener("click", closeSidebar);
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
 
-    sidebarOverlay.addEventListener("click", closeSidebar);
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
 
-    document.querySelectorAll(".sidebar .nav-item").forEach(function (item) {
-        item.addEventListener("click", closeSidebar);
+}
+
+document.querySelectorAll(".sidebar .nav-item").forEach(function (link) {
+
+    link.addEventListener("click", function () {
+
+        if (window.innerWidth <= 900) {
+            closeSidebar();
+        }
+
     });
 
-    document.querySelector(".logout-btn").addEventListener("click", closeSidebar);
+});
+
+window.addEventListener("resize", function () {
+
+    if (window.innerWidth > 900) {
+        closeSidebar();
+    }
+
+});
 
 </script>
 
 </body>
 
 </html>
-```

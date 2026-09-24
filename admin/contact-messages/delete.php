@@ -41,5 +41,4 @@ try {
 
     header("Location: index.php?error=delete");
     exit;
-
 }

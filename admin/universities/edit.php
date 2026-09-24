@@ -28,6 +28,12 @@ function generateSlug($text)
 }
 
 
+/*
+|--------------------------------------------------------------------------
+| GET UNIVERSITY ID
+|--------------------------------------------------------------------------
+*/
+
 $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
 
 if (!$id) {
@@ -51,6 +57,7 @@ try {
         SELECT *
         FROM universities
         WHERE id = :id
+        LIMIT 1
     ");
 
     $stmt->execute([
@@ -79,20 +86,20 @@ try {
 |--------------------------------------------------------------------------
 */
 
-$name = $university["name"];
-$slug = $university["slug"];
-$country = $university["country"];
-$city = $university["city"];
-$description = $university["description"];
-$programmes = $university["programmes"];
-$tuition_fee = $university["tuition_fee"];
-$intake_dates = $university["intake_dates"];
-$requirements = $university["requirements"];
-$english_requirements = $university["english_requirements"];
-$scholarships_available = $university["scholarships_available"];
-$official_url = $university["official_url"];
-$image_url = $university["image_url"];
-$status = $university["status"];
+$name = $university["name"] ?? "";
+$slug = $university["slug"] ?? "";
+$country = $university["country"] ?? "";
+$city = $university["city"] ?? "";
+$description = $university["description"] ?? "";
+$programmes = $university["programmes"] ?? "";
+$tuition_fee = $university["tuition_fee"] ?? "";
+$intake_dates = $university["intake_dates"] ?? "";
+$requirements = $university["requirements"] ?? "";
+$english_requirements = $university["english_requirements"] ?? "";
+$scholarships_available = $university["scholarships_available"] ?? "no";
+$official_url = $university["official_url"] ?? "";
+$image_url = $university["image_url"] ?? "";
+$status = $university["status"] ?? "active";
 
 
 /*
@@ -164,7 +171,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errors[] = "Invalid scholarship option.";
     }
 
-    if ($official_url !== "" && !filter_var($official_url, FILTER_VALIDATE_URL)) {
+    if (
+        $official_url !== ""
+        && !filter_var($official_url, FILTER_VALIDATE_URL)
+    ) {
         $errors[] = "Please enter a valid official website URL.";
     }
 
@@ -185,21 +195,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     } else {
 
-        $slugStmt = $pdo->prepare("
-            SELECT id
-            FROM universities
-            WHERE slug = :slug
-            AND id != :id
-            LIMIT 1
-        ");
+        try {
 
-        $slugStmt->execute([
-            ":slug" => $slug,
-            ":id" => $id
-        ]);
+            $slugStmt = $pdo->prepare("
+                SELECT id
+                FROM universities
+                WHERE slug = :slug
+                AND id != :id
+                LIMIT 1
+            ");
 
-        if ($slugStmt->fetch()) {
-            $errors[] = "Another university with this name already exists.";
+            $slugStmt->execute([
+                ":slug" => $slug,
+                ":id" => $id
+            ]);
+
+            if ($slugStmt->fetch()) {
+                $errors[] = "Another university with this name already exists.";
+            }
+
+        } catch (PDOException $e) {
+
+            $errors[] = "Unable to check university slug.";
         }
     }
 
@@ -209,6 +226,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     | IMAGE UPLOAD
     |--------------------------------------------------------------------------
     */
+
+    $newImageUploaded = false;
+    $newImagePath = "";
+    $oldImageUrl = $image_url;
 
     if (
         isset($_FILES["image"])
@@ -246,21 +267,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $uploadDirectory = __DIR__ . "/../../uploads/universities/";
 
                 if (!is_dir($uploadDirectory)) {
-                    mkdir($uploadDirectory, 0777, true);
+
+                    if (!mkdir($uploadDirectory, 0777, true)) {
+                        $errors[] = "Unable to create image upload directory.";
+                    }
                 }
 
-                $fileName = uniqid("university_", true) . "." . $extension;
+                if (empty($errors)) {
 
-                $uploadPath = $uploadDirectory . $fileName;
+                    $fileName = uniqid("university_", true) . "." . $extension;
 
-                if (move_uploaded_file($file["tmp_name"], $uploadPath)) {
+                    $uploadPath = $uploadDirectory . $fileName;
 
-                    $image_url = "uploads/universities/" . $fileName;
+                    if (move_uploaded_file($file["tmp_name"], $uploadPath)) {
 
-                } else {
+                        $image_url = "uploads/universities/" . $fileName;
 
-                    $errors[] = "Unable to save the uploaded image.";
+                        $newImageUploaded = true;
+                        $newImagePath = $uploadPath;
 
+                    } else {
+
+                        $errors[] = "Unable to save the uploaded image.";
+                    }
                 }
             }
         }
@@ -276,6 +305,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (empty($errors)) {
 
         try {
+
+            $pdo->beginTransaction();
 
             $stmt = $pdo->prepare("
                 UPDATE universities
@@ -317,6 +348,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 ":id" => $id
             ]);
 
+            $pdo->commit();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DELETE OLD IMAGE AFTER SUCCESSFUL DATABASE UPDATE
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $newImageUploaded
+                && !empty($oldImageUrl)
+                && $oldImageUrl !== $image_url
+            ) {
+
+                $oldImagePath = __DIR__ . "/../../" . ltrim($oldImageUrl, "/");
+
+                if (
+                    is_file($oldImagePath)
+                    && realpath($oldImagePath) !== realpath($newImagePath)
+                ) {
+                    @unlink($oldImagePath);
+                }
+            }
+
+
             $_SESSION["success"] = "University updated successfully.";
 
             header("Location: index.php");
@@ -324,9 +381,48 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         } catch (PDOException $e) {
 
-            $errors[] = "Unable to update university. Please try again.";
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | REMOVE NEW IMAGE IF DATABASE UPDATE FAILS
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $newImageUploaded
+                && !empty($newImagePath)
+                && is_file($newImagePath)
+            ) {
+                @unlink($newImagePath);
+            }
+
+            $image_url = $oldImageUrl;
+
+            $errors[] = "Unable to update university. Please try again.";
         }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | REMOVE NEW IMAGE IF VALIDATION FAILS
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        !empty($errors)
+        && $newImageUploaded
+        && !empty($newImagePath)
+        && is_file($newImagePath)
+    ) {
+
+        @unlink($newImagePath);
+
+        $image_url = $oldImageUrl;
     }
 }
 

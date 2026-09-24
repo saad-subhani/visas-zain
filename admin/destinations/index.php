@@ -46,7 +46,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Destinations | Edworldly Consultancy</title>
+    <title>Destinations | Foreign Study Consultants</title>
 
     <link
         rel="stylesheet"
@@ -297,8 +297,6 @@ unset($_SESSION["success"], $_SESSION["error"]);
             font-weight: 600;
         }
 
-        /* MOBILE SIDEBAR */
-
         .mobile-menu-btn {
             display: none;
             width: 40px;
@@ -435,16 +433,12 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
 <div class="admin-layout">
 
-    <!-- MOBILE SIDEBAR OVERLAY -->
-
     <div
         class="sidebar-overlay"
         id="sidebarOverlay"
         onclick="closeSidebar()"
     ></div>
 
-
-    <!-- SIDEBAR -->
 
     <aside class="sidebar" id="sidebar">
 
@@ -455,8 +449,8 @@ unset($_SESSION["success"], $_SESSION["error"]);
             </div>
 
             <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+                <h2>Foreign Study</h2>
+                <span>Consultants</span>
             </div>
 
         </div>
@@ -508,6 +502,15 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
             </a>
 
+
+            <a href="../contact-messages/index.php" class="nav-item">
+
+                <i class="fa-solid fa-envelope"></i>
+
+                <span>Contact Messages</span>
+
+            </a>
+
         </nav>
 
 
@@ -524,7 +527,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars($_SESSION["admin_username"] ?? "Admin") ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -547,16 +550,10 @@ unset($_SESSION["success"], $_SESSION["error"]);
     </aside>
 
 
-    <!-- MAIN -->
-
     <main class="main-content">
 
 
-        <!-- TOPBAR -->
-
         <header class="topbar">
-
-            <!-- MOBILE HAMBURGER -->
 
             <button
                 type="button"
@@ -595,8 +592,6 @@ unset($_SESSION["success"], $_SESSION["error"]);
         </header>
 
 
-        <!-- CONTENT -->
-
         <section class="content">
 
 
@@ -624,8 +619,6 @@ unset($_SESSION["success"], $_SESSION["error"]);
             </div>
 
 
-            <!-- FLASH MESSAGE -->
-
             <?php if ($success): ?>
 
                 <div class="alert success">
@@ -651,8 +644,6 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
             <?php endif; ?>
 
-
-            <!-- TABLE -->
 
             <div class="table-card">
 
@@ -728,16 +719,12 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
 
                                     <td>
-
                                         <?= htmlspecialchars($destination["tuition_range"]) ?>
-
                                     </td>
 
 
                                     <td>
-
                                         <?= htmlspecialchars($destination["living_cost"]) ?>
-
                                     </td>
 
 
@@ -760,7 +747,7 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
                                     <td>
 
-                                        <?php if ($destination["status"] === "active"): ?>
+                                        <?php if ($destination["status"] === "Active"): ?>
 
                                             <span class="status-badge active">
 
@@ -865,65 +852,65 @@ unset($_SESSION["success"], $_SESSION["error"]);
 
 <script>
 
-    function toggleSidebar() {
+function toggleSidebar() {
 
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("sidebarOverlay");
-        const buttonIcon = document.querySelector("#mobileMenuBtn i");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    const buttonIcon = document.querySelector("#mobileMenuBtn i");
 
-        sidebar.classList.toggle("mobile-open");
-        overlay.classList.toggle("mobile-open");
+    sidebar.classList.toggle("mobile-open");
+    overlay.classList.toggle("mobile-open");
 
-        if (sidebar.classList.contains("mobile-open")) {
+    if (sidebar.classList.contains("mobile-open")) {
 
-            buttonIcon.classList.remove("fa-bars");
-            buttonIcon.classList.add("fa-xmark");
+        buttonIcon.classList.remove("fa-bars");
+        buttonIcon.classList.add("fa-xmark");
 
-        } else {
-
-            buttonIcon.classList.remove("fa-xmark");
-            buttonIcon.classList.add("fa-bars");
-
-        }
-
-    }
-
-
-    function closeSidebar() {
-
-        const sidebar = document.getElementById("sidebar");
-        const overlay = document.getElementById("sidebarOverlay");
-        const buttonIcon = document.querySelector("#mobileMenuBtn i");
-
-        sidebar.classList.remove("mobile-open");
-        overlay.classList.remove("mobile-open");
+    } else {
 
         buttonIcon.classList.remove("fa-xmark");
         buttonIcon.classList.add("fa-bars");
 
     }
 
-
-    document.querySelectorAll(".sidebar .nav-item").forEach(function (item) {
-
-        item.addEventListener("click", function () {
-
-            if (window.innerWidth <= 768) {
-                closeSidebar();
-            }
-
-        });
-
-    });
+}
 
 
-    window.addEventListener("resize", function () {
+function closeSidebar() {
 
-        if (window.innerWidth > 768) {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    const buttonIcon = document.querySelector("#mobileMenuBtn i");
+
+    sidebar.classList.remove("mobile-open");
+    overlay.classList.remove("mobile-open");
+
+    buttonIcon.classList.remove("fa-xmark");
+    buttonIcon.classList.add("fa-bars");
+
+}
+
+
+document.querySelectorAll(".sidebar .nav-item").forEach(function (item) {
+
+    item.addEventListener("click", function () {
+
+        if (window.innerWidth <= 768) {
             closeSidebar();
         }
 
     });
+
+});
+
+
+window.addEventListener("resize", function () {
+
+    if (window.innerWidth > 768) {
+        closeSidebar();
+    }
+
+});
 
 </script>
 

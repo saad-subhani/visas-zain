@@ -9,45 +9,7 @@ if (!isset($_SESSION["admin_id"])) {
 
 require_once __DIR__ . "/../../config/db.php";
 
-$errors = [];
-
-$title = "";
-$slug = "";
-$description = "";
-$level = "";
-$field = "";
-$country = "";
-$language = "";
-$intake = "";
-$tuition_fee = "";
-$duration = "";
-$requirements = "";
-$status = "active";
-
-
-/*
-|--------------------------------------------------------------------------
-| SLUG GENERATOR
-|--------------------------------------------------------------------------
-*/
-
-function generateSlug($text)
-{
-    $text = strtolower(trim($text));
-
-    $text = preg_replace('/[^a-z0-9]+/', '-', $text);
-
-    $text = trim($text, '-');
-
-    return $text;
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| FORM SUBMISSION
-|--------------------------------------------------------------------------
-*/
+$error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -62,168 +24,112 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $tuition_fee = trim($_POST["tuition_fee"] ?? "");
     $duration = trim($_POST["duration"] ?? "");
     $requirements = trim($_POST["requirements"] ?? "");
-    $status = $_POST["status"] ?? "active";
+    $status = trim($_POST["status"] ?? "Active");
 
+    if (
+        $title === "" ||
+        $description === "" ||
+        $level === "" ||
+        $field === "" ||
+        $country === "" ||
+        $language === "" ||
+        $intake === "" ||
+        $tuition_fee === "" ||
+        $duration === "" ||
+        $requirements === ""
+    ) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | AUTO GENERATE SLUG IF EMPTY
-    |--------------------------------------------------------------------------
-    */
+        $error = "Please fill in all required fields.";
 
-    if ($slug === "") {
-        $slug = generateSlug($title);
+    } elseif (!in_array($level, ["Bachelor", "Master", "PhD"], true)) {
+
+        $error = "Invalid course level.";
+
+    } elseif (!in_array($status, ["Active", "Inactive"], true)) {
+
+        $error = "Invalid course status.";
+
     } else {
-        $slug = generateSlug($slug);
-    }
 
+        if ($slug === "") {
 
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDATION
-    |--------------------------------------------------------------------------
-    */
+            $slug = strtolower($title);
 
-    if ($title === "") {
-        $errors[] = "Course title is required.";
-    }
+            $slug = preg_replace(
+                '/[^a-z0-9]+/i',
+                '-',
+                $slug
+            );
 
-    if ($slug === "") {
-        $errors[] = "Course slug is required.";
-    }
-
-    if ($description === "") {
-        $errors[] = "Description is required.";
-    }
-
-    if (!in_array($level, ["Bachelor", "Master", "PhD"], true)) {
-        $errors[] = "Please select a valid course level.";
-    }
-
-    if ($field === "") {
-        $errors[] = "Field is required.";
-    }
-
-    if ($country === "") {
-        $errors[] = "Country is required.";
-    }
-
-    if ($language === "") {
-        $errors[] = "Language is required.";
-    }
-
-    if ($intake === "") {
-        $errors[] = "Intake is required.";
-    }
-
-    if ($tuition_fee === "") {
-        $errors[] = "Tuition fee is required.";
-    }
-
-    if ($duration === "") {
-        $errors[] = "Duration is required.";
-    }
-
-    if ($requirements === "") {
-        $errors[] = "Requirements are required.";
-    }
-
-    if (!in_array($status, ["active", "inactive"], true)) {
-        $errors[] = "Invalid status selected.";
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK DUPLICATE SLUG
-    |--------------------------------------------------------------------------
-    */
-
-    if ($slug !== "") {
-
-        $slugCheck = $pdo->prepare(
-            "SELECT id FROM courses WHERE slug = :slug LIMIT 1"
-        );
-
-        $slugCheck->execute([
-            ":slug" => $slug
-        ]);
-
-        if ($slugCheck->fetch()) {
-            $errors[] = "This course slug already exists. Please use a different slug.";
+            $slug = trim($slug, '-');
         }
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INSERT COURSE
-    |--------------------------------------------------------------------------
-    */
-
-    if (empty($errors)) {
 
         try {
 
-            $stmt = $pdo->prepare("
-                INSERT INTO courses
-                (
-                    title,
-                    slug,
-                    description,
-                    level,
-                    field,
-                    country,
-                    language,
-                    intake,
-                    tuition_fee,
-                    duration,
-                    requirements,
-                    status
-                )
-                VALUES
-                (
-                    :title,
-                    :slug,
-                    :description,
-                    :level,
-                    :field,
-                    :country,
-                    :language,
-                    :intake,
-                    :tuition_fee,
-                    :duration,
-                    :requirements,
-                    :status
-                )
+            $check = $pdo->prepare("
+                SELECT id
+                FROM courses
+                WHERE slug = ?
+                LIMIT 1
             ");
 
-            $stmt->execute([
-                ":title" => $title,
-                ":slug" => $slug,
-                ":description" => $description,
-                ":level" => $level,
-                ":field" => $field,
-                ":country" => $country,
-                ":language" => $language,
-                ":intake" => $intake,
-                ":tuition_fee" => $tuition_fee,
-                ":duration" => $duration,
-                ":requirements" => $requirements,
-                ":status" => $status
-            ]);
+            $check->execute([$slug]);
 
-            $_SESSION["success"] = "Course added successfully.";
+            if ($check->fetch()) {
 
-            header("Location: index.php");
-            exit;
+                $error = "A course with this slug already exists.";
+
+            } else {
+
+                $stmt = $pdo->prepare("
+                    INSERT INTO courses (
+                        title,
+                        slug,
+                        description,
+                        level,
+                        field,
+                        country,
+                        language,
+                        intake,
+                        tuition_fee,
+                        duration,
+                        requirements,
+                        status
+                    )
+                    VALUES (
+                        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                    )
+                ");
+
+                $stmt->execute([
+                    $title,
+                    $slug,
+                    $description,
+                    $level,
+                    $field,
+                    $country,
+                    $language,
+                    $intake,
+                    $tuition_fee,
+                    $duration,
+                    $requirements,
+                    $status
+                ]);
+
+                $_SESSION["success"] = "Course added successfully.";
+
+                header("Location: index.php");
+                exit;
+            }
 
         } catch (PDOException $e) {
 
-            $errors[] = "Unable to add course. Please try again.";
+            $error = "Something went wrong while adding the course.";
 
         }
+
     }
+
 }
 
 ?>
@@ -240,100 +146,271 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Add Course | Edworldly Consultancy</title>
+    <title>Add Course | FSC Consultancy</title>
 
     <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
-    <link
-        rel="stylesheet"
-        href="../../assets/css/admin.css"
-    >
-
     <style>
 
-        .page-header {
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fa;
+            color: #111827;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 250px;
+            background: #111827;
+            color: #ffffff;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .brand-inner {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 24px;
+            gap: 12px;
         }
 
-        .page-header h1 {
-            font-size: 23px;
-            color: #172033;
-            margin-bottom: 5px;
-        }
-
-        .page-header p {
-            font-size: 13px;
-            color: #7e8899;
-        }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 15px;
-            border: 1px solid #dfe3e9;
-            background: #ffffff;
-            color: #475467;
+        .brand-icon {
+            width: 38px;
+            height: 38px;
             border-radius: 8px;
+            background: #102f52;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .brand-text h2 {
+            font-size: 19px;
+            line-height: 1.3;
+            color: rgb(14, 171, 214);
+        }
+
+        .brand-text span {
+            display: block;
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+
+        .nav {
+            padding: 20px 12px;
+            flex: 1;
+        }
+
+        .nav a {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            color: #d1d5db;
             font-size: 13px;
-            font-weight: 600;
+            transition: 0.2s ease;
         }
 
-        .back-btn:hover {
-            background: #f8f9fb;
+        .nav a i {
+            width: 18px;
+            text-align: center;
+            font-size: 13px;
         }
 
-        .form-card {
-            background: #ffffff;
-            border: 1px solid #e8ebf0;
-            border-radius: 12px;
-            padding: 28px;
+        .nav a:hover,
+        .nav a.active {
+            background: #1f2937;
+            color: #ffffff;
         }
 
-        .form-section {
-            margin-bottom: 30px;
+        /* SIDEBAR BOTTOM */
+
+        .sidebar-bottom {
+            padding: 15px 12px 18px;
+            border-top: 1px solid rgba(255,255,255,0.08);
         }
 
-        .form-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .form-section-title {
+        .admin-user {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding-bottom: 14px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #edf0f4;
+            padding: 10px 8px;
+            margin-bottom: 10px;
         }
 
-        .form-section-title i {
-            width: 32px;
-            height: 32px;
-            border-radius: 7px;
-            background: #f0f2f6;
-            color: #172033;
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #1f2937;
+            color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 13px;
+            flex-shrink: 0;
         }
 
-        .form-section-title h2 {
-            font-size: 15px;
-            color: #172033;
+        .admin-user strong {
+            display: block;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .admin-user span {
+            display: block;
+            color: #9ca3af;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .change-password-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 11px 14px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #102f52;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #e8ebf0;
+            transition: all 0.2s ease;
+        }
+
+        .change-password-btn:hover {
+            background: #102f52;
+            color: #ffffff;
+            border-color: #102f52;
+        }
+
+        .change-password-btn i {
+            width: 18px;
+            text-align: center;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 8px;
+            background: #1f2937;
+            color: #fca5a5;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #374151;
+            color: #fecaca;
+        }
+
+        .logout-btn i {
+            width: 18px;
+            text-align: center;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 70px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        .topbar h1 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .admin-info {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .page-header p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* FORM */
+
+        .form-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 1100px;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 20px;
         }
 
@@ -346,213 +423,205 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             grid-column: 1 / -1;
         }
 
-        .form-group label {
-            font-size: 12px;
+        label {
+            font-size: 14px;
             font-weight: 600;
-            color: #344054;
+            color: #374151;
             margin-bottom: 8px;
         }
 
-        .required {
-            color: #d92d20;
-        }
-
-        .form-control {
+        input,
+        select,
+        textarea {
             width: 100%;
-            min-height: 45px;
-            border: 1px solid #dfe3e9;
-            border-radius: 8px;
-            padding: 10px 13px;
-            font-family: inherit;
-            font-size: 13px;
-            color: #344054;
+            padding: 12px 13px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
             background: #ffffff;
+            color: #111827;
+            font-size: 14px;
             outline: none;
             transition: 0.2s ease;
-            box-sizing: border-box;
+            font-family: inherit;
         }
 
-        .form-control:focus {
-            border-color: #172033;
-            box-shadow: 0 0 0 3px rgba(23, 32, 51, 0.07);
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #111827;
+            box-shadow: 0 0 0 3px rgba(17,24,39,0.08);
         }
 
-        textarea.form-control {
-            min-height: 115px;
+        textarea {
+            min-height: 140px;
             resize: vertical;
             line-height: 1.6;
         }
 
-        select.form-control {
-            cursor: pointer;
-        }
-
         .help-text {
-            margin-top: 6px;
-            color: #98a2b3;
-            font-size: 11px;
-        }
-
-        .error-box {
-            background: #fff1f1;
-            border: 1px solid #ffd6d3;
-            color: #b42318;
-            border-radius: 8px;
-            padding: 14px 16px;
-            margin-bottom: 22px;
-        }
-
-        .error-box-title {
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 7px;
-        }
-
-        .error-box ul {
-            padding-left: 20px;
-            margin: 0;
-        }
-
-        .error-box li {
+            color: #6b7280;
             font-size: 12px;
-            margin: 4px 0;
+            margin-top: 6px;
         }
+
+        /* ALERT */
+
+        .alert {
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        /* BUTTONS */
 
         .form-actions {
             display: flex;
             align-items: center;
             justify-content: flex-end;
             gap: 10px;
-            padding-top: 22px;
-            border-top: 1px solid #edf0f4;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e7eb;
         }
 
-        .cancel-btn {
-            padding: 11px 18px;
-            border-radius: 8px;
-            border: 1px solid #dfe3e9;
-            background: #ffffff;
-            color: #475467;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .cancel-btn:hover {
-            background: #f8f9fb;
-        }
-
-        .save-btn {
+        .btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 11px 19px;
-            border-radius: 8px;
+            justify-content: center;
+            padding: 11px 18px;
+            border-radius: 7px;
             border: none;
-            background: #172033;
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 600;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
         }
 
-        .save-btn:hover {
-            background: #27344d;
+        .btn-primary {
+            background: #111827;
+            color: #ffffff;
         }
 
+        .btn-primary:hover {
+            background: #1f2937;
+        }
 
-        /* MOBILE MENU */
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* MOBILE HEADER */
+
+        .mobile-header {
+            display: none;
+        }
 
         .mobile-menu-btn {
-            display: none;
             width: 40px;
             height: 40px;
-            border: 1px solid #dfe3e9;
+            border: 1px solid #e1e5eb;
             border-radius: 8px;
             background: #ffffff;
-            color: #172033;
+            color: #102f52;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 17px;
             cursor: pointer;
-            flex-shrink: 0;
         }
 
         .sidebar-overlay {
             display: none;
         }
 
-
-        /* MOBILE */
-
-        @media (max-width: 700px) {
-
-            .mobile-menu-btn {
-                display: inline-flex;
-            }
+        @media (max-width: 900px) {
 
             .sidebar {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 270px;
-                height: 100vh;
-                z-index: 1001;
-                overflow-y: auto;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
             }
 
-            .sidebar.mobile-open {
-                display: flex;
+            .sidebar.open {
+                transform: translateX(0);
             }
 
             .sidebar-overlay {
                 position: fixed;
                 inset: 0;
                 background: rgba(0, 0, 0, 0.35);
-                z-index: 1000;
+                z-index: 999;
             }
 
-            .sidebar-overlay.active {
+            .sidebar-overlay.show {
                 display: block;
             }
 
-            .main-content {
-                width: 100%;
+            .main {
                 margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 16px;
+                background: #ffffff;
+                border-bottom: 1px solid #e8ebf0;
+                position: sticky;
+                top: 0;
+                z-index: 900;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .mobile-brand-icon {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                background: #102f52;
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }
+
+            .mobile-brand-text h2 {
+                margin: 0;
+                font-size: 15px;
+                color: #102f52;
+            }
+
+            .mobile-brand-text span {
+                display: block;
+                margin-top: 1px;
+                font-size: 10px;
+                color: #8a94a5;
             }
 
             .topbar {
-                position: relative;
-                padding: 15px 16px;
+                padding-top: 18px;
             }
 
-            .topbar h1 {
-                font-size: 18px;
-            }
+        }
 
-            .topbar p {
-                font-size: 11px;
-            }
-
-            .topbar-right {
-                display: none;
-            }
-
-            .content {
-                padding: 16px;
-            }
-
-            .page-header {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .back-btn {
-                width: 100%;
-                justify-content: center;
-                box-sizing: border-box;
-            }
+        @media (max-width: 700px) {
 
             .form-grid {
                 grid-template-columns: 1fr;
@@ -566,17 +635,52 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 padding: 20px;
             }
 
-            .form-actions {
-                flex-direction: column-reverse;
-                align-items: stretch;
+        }
+
+        @media (max-width: 650px) {
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                height: auto;
+                padding: 18px 16px;
             }
 
-            .cancel-btn,
-            .save-btn {
+            .admin-info {
+                display: none;
+            }
+
+            .content {
+                padding: 18px 14px;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .form-actions .btn {
                 width: 100%;
-                justify-content: center;
-                text-align: center;
-                box-sizing: border-box;
+            }
+
+        }
+
+        @media (max-width: 420px) {
+
+            .mobile-header {
+                padding: 10px 12px;
+            }
+
+            .content {
+                padding: 16px 12px;
+            }
+
+            .form-card {
+                padding: 16px;
             }
 
         }
@@ -587,55 +691,80 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <body>
 
-<div class="admin-layout">
+<div class="layout">
 
     <!-- SIDEBAR -->
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
 
-        <div class="sidebar-brand">
+        <div class="brand">
 
-            <div class="brand-icon">
-                <i class="fa-solid fa-graduation-cap"></i>
-            </div>
+            <div class="brand-inner">
 
-            <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+                <div class="brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+
+                <div class="brand-text">
+                    <h2>FSC</h2>
+                    <span>Consultancy</span>
+                </div>
+
             </div>
 
         </div>
 
+        <nav class="nav">
 
-        <nav class="sidebar-nav">
+            <a href="../dashboard.php">
 
-            <a href="../dashboard.php" class="nav-item">
                 <i class="fa-solid fa-chart-line"></i>
+
                 <span>Dashboard</span>
+
             </a>
 
-            <a href="index.php" class="nav-item active">
+            <a href="index.php" class="active">
+
                 <i class="fa-solid fa-book-open"></i>
+
                 <span>Courses</span>
+
             </a>
 
-            <a href="../destinations/index.php" class="nav-item">
+            <a href="../destinations/index.php">
+
                 <i class="fa-solid fa-earth-americas"></i>
+
                 <span>Destinations</span>
+
             </a>
 
-            <a href="../universities/index.php" class="nav-item">
+            <a href="../universities/index.php">
+
                 <i class="fa-solid fa-building-columns"></i>
+
                 <span>Universities</span>
+
             </a>
 
-            <a href="../scholarships/index.php" class="nav-item">
+            <a href="../scholarships/index.php">
+
                 <i class="fa-solid fa-award"></i>
+
                 <span>Scholarships</span>
+
+            </a>
+
+            <a href="../contact-messages/index.php">
+
+                <i class="fa-solid fa-envelope"></i>
+
+                <span>Contact Messages</span>
+
             </a>
 
         </nav>
-
 
         <div class="sidebar-bottom">
 
@@ -648,7 +777,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars(
+                            $_SESSION["admin_username"] ?? "Admin"
+                        ) ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -657,12 +788,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             </div>
 
+            <a
+                href="../change-password.php"
+                class="change-password-btn"
+            >
 
-            <a href="../logout.php" class="logout-btn">
+                <i class="fa-solid fa-key"></i>
+
+                <span>Change Password</span>
+
+            </a>
+
+            <a
+                href="../logout.php"
+                class="logout-btn"
+            >
 
                 <i class="fa-solid fa-right-from-bracket"></i>
 
-                Logout
+                <span>Logout</span>
 
             </a>
 
@@ -671,493 +815,426 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </aside>
 
 
-    <!-- MAIN CONTENT -->
+    <!-- SIDEBAR OVERLAY -->
 
-    <main class="main-content">
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeSidebar()"
+    ></div>
 
-        <header class="topbar">
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <!-- MOBILE HEADER -->
+
+        <div class="mobile-header">
+
+            <div class="mobile-brand">
+
+                <div class="mobile-brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+
+                <div class="mobile-brand-text">
+
+                    <h2>FSC Consultancy</h2>
+
+                    <span>Admin Panel</span>
+
+                </div>
+
+            </div>
 
             <button
                 type="button"
                 class="mobile-menu-btn"
-                id="mobileMenuBtn"
+                onclick="toggleSidebar()"
                 aria-label="Open menu"
             >
+
                 <i class="fa-solid fa-bars"></i>
+
             </button>
 
-
-            <div>
-
-                <h1>Add Course</h1>
-
-                <p>
-                    Create a new study programme.
-                </p>
-
-            </div>
+        </div>
 
 
-            <div class="topbar-right">
+        <!-- TOPBAR -->
 
-                <div class="topbar-date">
+        <header class="topbar">
 
-                    <i class="fa-regular fa-calendar"></i>
+            <h1>Add Course</h1>
 
-                    <?= date("d M Y") ?>
+            <div class="admin-info">
 
-                </div>
+                Welcome,
+                <?= htmlspecialchars(
+                    $_SESSION["admin_username"] ?? "Admin"
+                ) ?>
 
             </div>
 
         </header>
 
 
-        <section class="content">
+        <!-- CONTENT -->
 
-            <!-- PAGE HEADER -->
+        <section class="content">
 
             <div class="page-header">
 
-                <div>
+                <h2>Add New Course</h2>
 
-                    <h1>Course Information</h1>
-
-                    <p>
-                        Enter all required information for the new course.
-                    </p>
-
-                </div>
-
-                <a href="index.php" class="back-btn">
-
-                    <i class="fa-solid fa-arrow-left"></i>
-
-                    Back to Courses
-
-                </a>
+                <p>
+                    Add a new study program to the Courses section.
+                </p>
 
             </div>
 
 
-            <!-- ERRORS -->
+            <?php if ($error): ?>
 
-            <?php if (!empty($errors)): ?>
-
-                <div class="error-box">
-
-                    <div class="error-box-title">
-
-                        <i class="fa-solid fa-circle-exclamation"></i>
-
-                        Please fix the following errors:
-
-                    </div>
-
-                    <ul>
-
-                        <?php foreach ($errors as $error): ?>
-
-                            <li>
-                                <?= htmlspecialchars($error) ?>
-                            </li>
-
-                        <?php endforeach; ?>
-
-                    </ul>
-
+                <div class="alert alert-error">
+                    <?= htmlspecialchars($error) ?>
                 </div>
 
             <?php endif; ?>
 
 
-            <!-- FORM -->
-
             <div class="form-card">
 
                 <form method="POST">
 
+                    <div class="form-grid">
 
-                    <!-- BASIC INFORMATION -->
+                        <!-- TITLE -->
 
-                    <div class="form-section">
+                        <div class="form-group full">
 
-                        <div class="form-section-title">
+                            <label for="title">
+                                Course Title *
+                            </label>
 
-                            <i class="fa-solid fa-book-open"></i>
-
-                            <h2>Basic Information</h2>
-
-                        </div>
-
-
-                        <div class="form-grid">
-
-                            <div class="form-group full">
-
-                                <label for="title">
-                                    Course Title
-                                    <span class="required">*</span>
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="title"
-                                    name="title"
-                                    class="form-control"
-                                    placeholder="e.g. BSc Computer Science"
-                                    value="<?= htmlspecialchars($title) ?>"
-                                    required
-                                >
-
-                            </div>
-
-
-                            <!-- SLUG -->
-
-                            <div class="form-group full">
-
-                                <label for="slug">
-                                    Course Slug
-                                    <span class="required">*</span>
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="slug"
-                                    name="slug"
-                                    class="form-control"
-                                    placeholder="e.g. bsc-computer-science"
-                                    value="<?= htmlspecialchars($slug) ?>"
-                                    required
-                                >
-
-                                <span class="help-text">
-                                    URL-friendly version of the course title. Example: bsc-computer-science
-                                </span>
-
-                            </div>
-
-
-                            <div class="form-group full">
-
-                                <label for="description">
-                                    Description
-                                    <span class="required">*</span>
-                                </label>
-
-                                <textarea
-                                    id="description"
-                                    name="description"
-                                    class="form-control"
-                                    placeholder="Enter course description..."
-                                    required
-                                ><?= htmlspecialchars($description) ?></textarea>
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="level">
-                                    Level
-                                    <span class="required">*</span>
-                                </label>
-
-                                <select
-                                    id="level"
-                                    name="level"
-                                    class="form-control"
-                                    required
-                                >
-
-                                    <option value="">
-                                        Select Level
-                                    </option>
-
-                                    <option
-                                        value="Bachelor"
-                                        <?= $level === "Bachelor" ? "selected" : "" ?>
-                                    >
-                                        Bachelor
-                                    </option>
-
-                                    <option
-                                        value="Master"
-                                        <?= $level === "Master" ? "selected" : "" ?>
-                                    >
-                                        Master
-                                    </option>
-
-                                    <option
-                                        value="PhD"
-                                        <?= $level === "PhD" ? "selected" : "" ?>
-                                    >
-                                        PhD
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="field">
-                                    Field
-                                    <span class="required">*</span>
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="field"
-                                    name="field"
-                                    class="form-control"
-                                    placeholder="e.g. Computer Science"
-                                    value="<?= htmlspecialchars($field) ?>"
-                                    required
-                                >
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- STUDY DETAILS -->
-
-                    <div class="form-section">
-
-                        <div class="form-section-title">
-
-                            <i class="fa-solid fa-globe"></i>
-
-                            <h2>Study Details</h2>
+                            <input
+                                type="text"
+                                id="title"
+                                name="title"
+                                value="<?= htmlspecialchars(
+                                    $_POST["title"] ?? ""
+                                ) ?>"
+                                placeholder="e.g. Bachelor of Computer Science"
+                                required
+                            >
 
                         </div>
 
 
-                        <div class="form-grid">
+                        <!-- SLUG -->
 
-                            <div class="form-group">
+                        <div class="form-group full">
 
-                                <label for="country">
-                                    Country
-                                    <span class="required">*</span>
-                                </label>
+                            <label for="slug">
+                                Slug
+                            </label>
 
-                                <input
-                                    type="text"
-                                    id="country"
-                                    name="country"
-                                    class="form-control"
-                                    placeholder="e.g. United Kingdom"
-                                    value="<?= htmlspecialchars($country) ?>"
-                                    required
-                                >
+                            <input
+                                type="text"
+                                id="slug"
+                                name="slug"
+                                value="<?= htmlspecialchars(
+                                    $_POST["slug"] ?? ""
+                                ) ?>"
+                                placeholder="e.g. bachelor-of-computer-science"
+                            >
 
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="language">
-                                    Language
-                                    <span class="required">*</span>
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="language"
-                                    name="language"
-                                    class="form-control"
-                                    placeholder="e.g. English"
-                                    value="<?= htmlspecialchars($language) ?>"
-                                    required
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="intake">
-                                    Intake
-                                    <span class="required">*</span>
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="intake"
-                                    name="intake"
-                                    class="form-control"
-                                    placeholder="e.g. September 2026"
-                                    value="<?= htmlspecialchars($intake) ?>"
-                                    required
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="duration">
-                                    Duration
-                                    <span class="required">*</span>
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="duration"
-                                    name="duration"
-                                    class="form-control"
-                                    placeholder="e.g. 3 Years"
-                                    value="<?= htmlspecialchars($duration) ?>"
-                                    required
-                                >
-
-                            </div>
-
-
-                            <div class="form-group">
-
-                                <label for="tuition_fee">
-                                    Tuition Fee
-                                    <span class="required">*</span>
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="tuition_fee"
-                                    name="tuition_fee"
-                                    class="form-control"
-                                    placeholder="e.g. £18,000 per year"
-                                    value="<?= htmlspecialchars($tuition_fee) ?>"
-                                    required
-                                >
-
+                            <div class="help-text">
+                                Leave empty to generate automatically from the course title.
                             </div>
 
                         </div>
 
-                    </div>
 
+                        <!-- LEVEL -->
 
-                    <!-- REQUIREMENTS -->
+                        <div class="form-group">
 
-                    <div class="form-section">
+                            <label for="level">
+                                Study Level *
+                            </label>
 
-                        <div class="form-section-title">
+                            <select
+                                id="level"
+                                name="level"
+                                required
+                            >
 
-                            <i class="fa-solid fa-list-check"></i>
+                                <option value="">
+                                    Select Level
+                                </option>
 
-                            <h2>Requirements</h2>
-
-                        </div>
-
-
-                        <div class="form-grid">
-
-                            <div class="form-group full">
-
-                                <label for="requirements">
-                                    Admission Requirements
-                                    <span class="required">*</span>
-                                </label>
-
-                                <textarea
-                                    id="requirements"
-                                    name="requirements"
-                                    class="form-control"
-                                    placeholder="Enter academic and admission requirements..."
-                                    required
-                                ><?= htmlspecialchars($requirements) ?></textarea>
-
-                                <span class="help-text">
-                                    Mention academic qualifications, English requirements and any other important conditions.
-                                </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- STATUS -->
-
-                    <div class="form-section">
-
-                        <div class="form-section-title">
-
-                            <i class="fa-solid fa-toggle-on"></i>
-
-                            <h2>Status</h2>
-
-                        </div>
-
-
-                        <div class="form-grid">
-
-                            <div class="form-group">
-
-                                <label for="status">
-                                    Course Status
-                                    <span class="required">*</span>
-                                </label>
-
-                                <select
-                                    id="status"
-                                    name="status"
-                                    class="form-control"
-                                    required
+                                <option
+                                    value="Bachelor"
+                                    <?= (($_POST["level"] ?? "") === "Bachelor")
+                                        ? "selected"
+                                        : "" ?>
                                 >
+                                    Bachelor
+                                </option>
 
-                                    <option
-                                        value="active"
-                                        <?= $status === "active" ? "selected" : "" ?>
-                                    >
-                                        Active
-                                    </option>
+                                <option
+                                    value="Master"
+                                    <?= (($_POST["level"] ?? "") === "Master")
+                                        ? "selected"
+                                        : "" ?>
+                                >
+                                    Master
+                                </option>
 
-                                    <option
-                                        value="inactive"
-                                        <?= $status === "inactive" ? "selected" : "" ?>
-                                    >
-                                        Inactive
-                                    </option>
+                                <option
+                                    value="PhD"
+                                    <?= (($_POST["level"] ?? "") === "PhD")
+                                        ? "selected"
+                                        : "" ?>
+                                >
+                                    PhD
+                                </option>
 
-                                </select>
+                            </select>
 
-                            </div>
+                        </div>
+
+
+                        <!-- FIELD -->
+
+                        <div class="form-group">
+
+                            <label for="field">
+                                Field *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="field"
+                                name="field"
+                                value="<?= htmlspecialchars(
+                                    $_POST["field"] ?? ""
+                                ) ?>"
+                                placeholder="e.g. Computer Science"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- COUNTRY -->
+
+                        <div class="form-group">
+
+                            <label for="country">
+                                Country *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="country"
+                                name="country"
+                                value="<?= htmlspecialchars(
+                                    $_POST["country"] ?? ""
+                                ) ?>"
+                                placeholder="e.g. United Kingdom"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- LANGUAGE -->
+
+                        <div class="form-group">
+
+                            <label for="language">
+                                Language *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="language"
+                                name="language"
+                                value="<?= htmlspecialchars(
+                                    $_POST["language"] ?? ""
+                                ) ?>"
+                                placeholder="e.g. English"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- INTAKE -->
+
+                        <div class="form-group">
+
+                            <label for="intake">
+                                Intake *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="intake"
+                                name="intake"
+                                value="<?= htmlspecialchars(
+                                    $_POST["intake"] ?? ""
+                                ) ?>"
+                                placeholder="e.g. September 2027"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- TUITION -->
+
+                        <div class="form-group">
+
+                            <label for="tuition_fee">
+                                Tuition Fee *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="tuition_fee"
+                                name="tuition_fee"
+                                value="<?= htmlspecialchars(
+                                    $_POST["tuition_fee"] ?? ""
+                                ) ?>"
+                                placeholder="e.g. £15,000 - £20,000 per year"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- DURATION -->
+
+                        <div class="form-group">
+
+                            <label for="duration">
+                                Duration *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="duration"
+                                name="duration"
+                                value="<?= htmlspecialchars(
+                                    $_POST["duration"] ?? ""
+                                ) ?>"
+                                placeholder="e.g. 3 Years"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- STATUS -->
+
+                        <div class="form-group">
+
+                            <label for="status">
+                                Status *
+                            </label>
+
+                            <select
+                                id="status"
+                                name="status"
+                                required
+                            >
+
+                                <option
+                                    value="Active"
+                                    <?= (($_POST["status"] ?? "Active") === "Active")
+                                        ? "selected"
+                                        : "" ?>
+                                >
+                                    Active
+                                </option>
+
+                                <option
+                                    value="Inactive"
+                                    <?= (($_POST["status"] ?? "") === "Inactive")
+                                        ? "selected"
+                                        : "" ?>
+                                >
+                                    Inactive
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div class="form-group full">
+
+                            <label for="description">
+                                Description *
+                            </label>
+
+                            <textarea
+                                id="description"
+                                name="description"
+                                placeholder="Write a detailed description of the course..."
+                                required
+                            ><?= htmlspecialchars(
+                                $_POST["description"] ?? ""
+                            ) ?></textarea>
+
+                        </div>
+
+
+                        <!-- REQUIREMENTS -->
+
+                        <div class="form-group full">
+
+                            <label for="requirements">
+                                Requirements *
+                            </label>
+
+                            <textarea
+                                id="requirements"
+                                name="requirements"
+                                placeholder="Enter admission requirements..."
+                                required
+                            ><?= htmlspecialchars(
+                                $_POST["requirements"] ?? ""
+                            ) ?></textarea>
 
                         </div>
 
                     </div>
 
-
-                    <!-- ACTIONS -->
 
                     <div class="form-actions">
 
-                        <a href="index.php" class="cancel-btn">
+                        <a
+                            href="index.php"
+                            class="btn btn-secondary"
+                        >
                             Cancel
                         </a>
 
                         <button
                             type="submit"
-                            class="save-btn"
+                            class="btn btn-primary"
                         >
-
-                            <i class="fa-solid fa-check"></i>
-
-                            Save Course
-
+                            Add Course
                         </button>
 
                     </div>
-
 
                 </form>
 
@@ -1170,93 +1247,75 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </div>
 
 
-<!-- MOBILE SIDEBAR OVERLAY -->
-
-<div
-    class="sidebar-overlay"
-    id="sidebarOverlay"
-></div>
-
-
 <script>
 
-    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-    const sidebar = document.querySelector(".sidebar");
-    const sidebarOverlay = document.getElementById("sidebarOverlay");
+function toggleSidebar() {
 
-    mobileMenuBtn.addEventListener("click", function () {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
 
-        sidebar.classList.toggle("mobile-open");
-        sidebarOverlay.classList.toggle("active");
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
 
-    });
+}
 
+function closeSidebar() {
 
-    sidebarOverlay.addEventListener("click", function () {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
 
-        sidebar.classList.remove("mobile-open");
-        sidebarOverlay.classList.remove("active");
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
 
-    });
+}
 
+document.querySelectorAll(".sidebar .nav a").forEach(function (link) {
 
-    const sidebarLinks = sidebar.querySelectorAll("a");
+    link.addEventListener("click", function () {
 
-    sidebarLinks.forEach(function (link) {
-
-        link.addEventListener("click", function () {
-
-            sidebar.classList.remove("mobile-open");
-            sidebarOverlay.classList.remove("active");
-
-        });
-
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | AUTO GENERATE SLUG FROM COURSE TITLE
-    |--------------------------------------------------------------------------
-    */
-
-    const titleInput = document.getElementById("title");
-    const slugInput = document.getElementById("slug");
-
-    titleInput.addEventListener("input", function () {
-
-        if (slugInput.dataset.edited !== "true") {
-
-            let slug = this.value
-                .toLowerCase()
-                .trim()
-                .replace(/[^a-z0-9]+/g, "-")
-                .replace(/^-+|-+$/g, "");
-
-            slugInput.value = slug;
-
+        if (window.innerWidth <= 900) {
+            closeSidebar();
         }
 
     });
 
+});
 
-    /*
-    |--------------------------------------------------------------------------
-    | IF USER MANUALLY EDITS SLUG
-    |--------------------------------------------------------------------------
-    */
+window.addEventListener("resize", function () {
 
-    slugInput.addEventListener("input", function () {
+    if (window.innerWidth > 900) {
+        closeSidebar();
+    }
 
-        this.dataset.edited = "true";
+});
 
-        this.value = this.value
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "");
 
-    });
+/* Automatically generate slug from title */
+
+const titleInput = document.getElementById("title");
+const slugInput = document.getElementById("slug");
+
+titleInput.addEventListener("input", function () {
+
+    if (slugInput.dataset.manual === "true") {
+        return;
+    }
+
+    let slug = this.value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+    slugInput.value = slug;
+
+});
+
+slugInput.addEventListener("input", function () {
+
+    this.dataset.manual = "true";
+
+});
 
 </script>
 

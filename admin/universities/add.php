@@ -12,11 +12,9 @@ require_once __DIR__ . "/../../config/db.php";
 $errors = [];
 
 
-/*
-|--------------------------------------------------------------------------
-| SLUG GENERATOR
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   SLUG GENERATOR
+========================================================= */
 
 function generateSlug($text)
 {
@@ -30,11 +28,9 @@ function generateSlug($text)
 }
 
 
-/*
-|--------------------------------------------------------------------------
-| DEFAULT VALUES
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   DEFAULT VALUES
+========================================================= */
 
 $name = "";
 $slug = "";
@@ -46,40 +42,50 @@ $tuition_fee = "";
 $intake_dates = "";
 $requirements = "";
 $english_requirements = "";
-$scholarships_available = "yes";
+$scholarships_available = "No";
 $official_url = "";
 $image_url = "";
-$status = "active";
+$status = "Active";
 
 
-/*
-|--------------------------------------------------------------------------
-| FORM SUBMISSION
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   FORM SUBMISSION
+========================================================= */
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $name = trim($_POST["name"] ?? "");
+
     $slug = generateSlug($name);
+
     $country = trim($_POST["country"] ?? "");
+
     $city = trim($_POST["city"] ?? "");
+
     $description = trim($_POST["description"] ?? "");
+
     $programmes = trim($_POST["programmes"] ?? "");
+
     $tuition_fee = trim($_POST["tuition_fee"] ?? "");
+
     $intake_dates = trim($_POST["intake_dates"] ?? "");
+
     $requirements = trim($_POST["requirements"] ?? "");
-    $english_requirements = trim($_POST["english_requirements"] ?? "");
-    $scholarships_available = $_POST["scholarships_available"] ?? "no";
+
+    $english_requirements = trim(
+        $_POST["english_requirements"] ?? ""
+    );
+
+    $scholarships_available = $_POST["scholarships_available"] ?? "No";
+
     $official_url = trim($_POST["official_url"] ?? "");
-    $status = $_POST["status"] ?? "active";
+
+    $status = $_POST["status"] ?? "Active";
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDATION
-    |--------------------------------------------------------------------------
-    */
+    /* =====================================================
+       VALIDATION
+    ===================================================== */
 
     if ($name === "") {
         $errors[] = "University name is required.";
@@ -117,24 +123,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errors[] = "English requirements are required.";
     }
 
-    if (!in_array($scholarships_available, ["yes", "no"], true)) {
+
+    /* Exact ENUM values from new FSC database */
+
+    if (!in_array(
+        $scholarships_available,
+        ["Yes", "No"],
+        true
+    )) {
+
         $errors[] = "Invalid scholarship option.";
+
     }
 
-    if ($official_url !== "" && !filter_var($official_url, FILTER_VALIDATE_URL)) {
+
+    if (
+        $official_url !== ""
+        && !filter_var($official_url, FILTER_VALIDATE_URL)
+    ) {
+
         $errors[] = "Please enter a valid official website URL.";
+
     }
 
-    if (!in_array($status, ["active", "inactive"], true)) {
+
+    if (!in_array(
+        $status,
+        ["Active", "Inactive"],
+        true
+    )) {
+
         $errors[] = "Invalid status selected.";
+
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CHECK SLUG
-    |--------------------------------------------------------------------------
-    */
+    /* =====================================================
+       CHECK SLUG
+    ===================================================== */
 
     if ($slug === "") {
 
@@ -154,16 +180,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ]);
 
         if ($slugStmt->fetch()) {
-            $errors[] = "A university with this name already exists.";
+
+            $errors[] =
+                "A university with this name already exists.";
+
         }
+
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | IMAGE UPLOAD
-    |--------------------------------------------------------------------------
-    */
+    /* =====================================================
+       IMAGE UPLOAD
+    ===================================================== */
 
     $image_url = "";
 
@@ -186,49 +214,78 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 "image/webp" => "webp"
             ];
 
-            $fileType = mime_content_type($file["tmp_name"]);
+            $fileType = mime_content_type(
+                $file["tmp_name"]
+            );
+
 
             if (!isset($allowedTypes[$fileType])) {
 
-                $errors[] = "Only JPG, PNG and WEBP images are allowed.";
+                $errors[] =
+                    "Only JPG, PNG and WEBP images are allowed.";
 
             } elseif ($file["size"] > 5 * 1024 * 1024) {
 
-                $errors[] = "Image size must be less than 5MB.";
+                $errors[] =
+                    "Image size must be less than 5MB.";
 
             } else {
 
                 $extension = $allowedTypes[$fileType];
 
-                $uploadDirectory = __DIR__ . "/../../uploads/universities/";
+                $uploadDirectory =
+                    __DIR__ . "/../../uploads/universities/";
+
 
                 if (!is_dir($uploadDirectory)) {
-                    mkdir($uploadDirectory, 0777, true);
+
+                    mkdir(
+                        $uploadDirectory,
+                        0777,
+                        true
+                    );
+
                 }
 
-                $fileName = uniqid("university_", true) . "." . $extension;
 
-                $uploadPath = $uploadDirectory . $fileName;
+                $fileName =
+                    uniqid("university_", true)
+                    . "."
+                    . $extension;
 
-                if (move_uploaded_file($file["tmp_name"], $uploadPath)) {
 
-                    $image_url = "uploads/universities/" . $fileName;
+                $uploadPath =
+                    $uploadDirectory . $fileName;
+
+
+                if (
+                    move_uploaded_file(
+                        $file["tmp_name"],
+                        $uploadPath
+                    )
+                ) {
+
+                    $image_url =
+                        "uploads/universities/"
+                        . $fileName;
 
                 } else {
 
-                    $errors[] = "Unable to save the uploaded image.";
+                    $errors[] =
+                        "Unable to save the uploaded image.";
 
                 }
+
             }
+
         }
+
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SAVE UNIVERSITY
-    |--------------------------------------------------------------------------
-    */
+    /* =====================================================
+       SAVE UNIVERSITY
+    ===================================================== */
 
     if (empty($errors)) {
 
@@ -271,34 +328,66 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 )
             ");
 
+
             $stmt->execute([
+
                 ":name" => $name,
+
                 ":slug" => $slug,
+
                 ":country" => $country,
+
                 ":city" => $city,
+
                 ":description" => $description,
+
                 ":programmes" => $programmes,
+
                 ":tuition_fee" => $tuition_fee,
+
                 ":intake_dates" => $intake_dates,
+
                 ":requirements" => $requirements,
-                ":english_requirements" => $english_requirements,
-                ":scholarships_available" => $scholarships_available,
-                ":official_url" => $official_url,
-                ":image_url" => $image_url,
+
+                ":english_requirements" =>
+                    $english_requirements,
+
+                ":scholarships_available" =>
+                    $scholarships_available,
+
+                ":official_url" =>
+                    $official_url !== ""
+                        ? $official_url
+                        : null,
+
+                ":image_url" =>
+                    $image_url !== ""
+                        ? $image_url
+                        : null,
+
                 ":status" => $status
+
             ]);
 
-            $_SESSION["success"] = "University added successfully.";
+
+            $_SESSION["success"] =
+                "University added successfully.";
+
 
             header("Location: index.php");
+
             exit;
+
 
         } catch (PDOException $e) {
 
-            $errors[] = "Unable to add university. Please try again.";
+            $errors[] =
+                "Unable to add university. Please try again.";
 
         }
+
     }
+
 }
 
 ?>
@@ -315,7 +404,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Add University | Edworldly Consultancy</title>
+    <title>Add University | FSC Consultancy</title>
 
     <link
         rel="stylesheet"
@@ -328,6 +417,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     >
 
     <style>
+
+        /* =========================================================
+           PAGE HEADER
+        ========================================================= */
 
         .page-header {
             display: flex;
@@ -348,6 +441,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #7e8899;
         }
 
+
+        /* =========================================================
+           BUTTONS
+        ========================================================= */
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -359,11 +457,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
+            text-decoration: none;
         }
 
         .back-btn:hover {
             background: #f8f9fb;
         }
+
+
+        /* =========================================================
+           FORM
+        ========================================================= */
 
         .form-card {
             background: #ffffff;
@@ -394,7 +498,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             height: 32px;
             border-radius: 7px;
             background: #f0f2f6;
-            color: #172033;
+            color: #102f52;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -448,8 +552,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         .form-control:focus {
-            border-color: #172033;
-            box-shadow: 0 0 0 3px rgba(23, 32, 51, 0.07);
+            border-color: #102f52;
+            box-shadow:
+                0 0 0 3px rgba(16, 47, 82, 0.07);
         }
 
         textarea.form-control {
@@ -467,6 +572,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #98a2b3;
             font-size: 11px;
         }
+
+
+        /* =========================================================
+           ERRORS
+        ========================================================= */
 
         .error-box {
             background: #fff1f1;
@@ -493,6 +603,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             margin: 4px 0;
         }
 
+
+        /* =========================================================
+           IMAGE PREVIEW
+        ========================================================= */
+
         .image-preview {
             margin-top: 12px;
             display: none;
@@ -505,6 +620,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             border-radius: 8px;
             border: 1px solid #e8ebf0;
         }
+
+
+        /* =========================================================
+           FORM ACTIONS
+        ========================================================= */
 
         .form-actions {
             display: flex;
@@ -523,6 +643,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #475467;
             font-size: 13px;
             font-weight: 600;
+            text-decoration: none;
         }
 
         .save-btn {
@@ -532,7 +653,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             padding: 11px 19px;
             border-radius: 8px;
             border: none;
-            background: #172033;
+            background: #102f52;
             color: #ffffff;
             font-size: 13px;
             font-weight: 600;
@@ -540,30 +661,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         .save-btn:hover {
-            background: #27344d;
+            background: #0b2745;
         }
 
 
         /* =========================================================
-           HAMBURGER MENU
+           MOBILE HEADER
         ========================================================= */
 
-        .mobile-menu-btn {
+        .mobile-header {
             display: none;
+        }
+
+        .mobile-menu-btn {
             width: 40px;
             height: 40px;
             border: 1px solid #e1e5eb;
             border-radius: 8px;
             background: #ffffff;
-            color: #172033;
+            color: #102f52;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
             font-size: 17px;
-        }
-
-        .mobile-menu-btn:hover {
-            background: #f8f9fb;
+            cursor: pointer;
         }
 
         .sidebar-overlay {
@@ -577,33 +698,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         @media (max-width: 900px) {
 
-            .mobile-menu-btn {
-                display: inline-flex;
-            }
-
             .sidebar {
                 position: fixed;
                 top: 0;
                 left: 0;
-                height: 100vh;
+                bottom: 0;
                 z-index: 1000;
                 transform: translateX(-100%);
                 transition: transform 0.25s ease;
-                box-shadow: 8px 0 25px rgba(0, 0, 0, 0.08);
             }
 
-            .sidebar.mobile-open {
+            .sidebar.open {
                 transform: translateX(0);
             }
 
             .sidebar-overlay {
                 position: fixed;
                 inset: 0;
-                background: rgba(15, 23, 42, 0.35);
+                background: rgba(0, 0, 0, 0.35);
                 z-index: 999;
             }
 
-            .sidebar-overlay.active {
+            .sidebar-overlay.show {
                 display: block;
             }
 
@@ -612,15 +728,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 width: 100%;
             }
 
-            .topbar {
-                padding-left: 18px;
-                padding-right: 18px;
-            }
-
-            .topbar > div:first-child {
+            .mobile-header {
                 display: flex;
                 align-items: center;
-                gap: 12px;
+                justify-content: space-between;
+                padding: 12px 16px;
+                background: #ffffff;
+                border-bottom: 1px solid #e8ebf0;
+                position: sticky;
+                top: 0;
+                z-index: 900;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .mobile-brand-icon {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                background: #102f52;
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+            }
+
+            .mobile-brand-text h2 {
+                margin: 0;
+                font-size: 15px;
+                color: #102f52;
+            }
+
+            .mobile-brand-text span {
+                display: block;
+                margin-top: 1px;
+                font-size: 10px;
+                color: #8a94a5;
+            }
+
+            .topbar {
+                padding-top: 18px;
             }
 
         }
@@ -673,22 +825,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 min-height: auto;
             }
 
-            .topbar > div:first-child {
-                align-items: flex-start;
-            }
-
-            .mobile-menu-btn {
-                flex-shrink: 0;
-            }
-
-            .topbar h1 {
-                font-size: 18px;
-            }
-
-            .topbar p {
-                font-size: 11px;
-            }
-
             .topbar-right {
                 display: none !important;
             }
@@ -738,15 +874,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <div class="admin-layout">
 
 
-    <!-- MOBILE SIDEBAR OVERLAY -->
+    <!-- =========================================================
+         SIDEBAR OVERLAY
+    ========================================================== -->
 
     <div
         class="sidebar-overlay"
         id="sidebarOverlay"
+        onclick="closeSidebar()"
     ></div>
 
 
-    <!-- SIDEBAR -->
+    <!-- =========================================================
+         SIDEBAR - EXACT DASHBOARD STYLE
+    ========================================================== -->
 
     <aside class="sidebar" id="sidebar">
 
@@ -757,8 +898,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+
+                <h2>Foreign Study</h2>
+
+                <span>Consultant</span>
+
             </div>
 
         </div>
@@ -766,48 +910,57 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <nav class="sidebar-nav">
 
-            <a href="../dashboard.php" class="nav-item">
-
+            <a
+                href="../dashboard.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-chart-line"></i>
-
                 <span>Dashboard</span>
-
             </a>
 
 
-            <a href="../courses/index.php" class="nav-item">
-
+            <a
+                href="../courses/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-book-open"></i>
-
                 <span>Courses</span>
-
             </a>
 
 
-            <a href="../destinations/index.php" class="nav-item">
-
+            <a
+                href="../destinations/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-earth-americas"></i>
-
                 <span>Destinations</span>
-
             </a>
 
 
-            <a href="index.php" class="nav-item active">
-
+            <a
+                href="index.php"
+                class="nav-item active"
+            >
                 <i class="fa-solid fa-building-columns"></i>
-
                 <span>Universities</span>
-
             </a>
 
 
-            <a href="../scholarships/index.php" class="nav-item">
-
+            <a
+                href="../scholarships/index.php"
+                class="nav-item"
+            >
                 <i class="fa-solid fa-award"></i>
-
                 <span>Scholarships</span>
+            </a>
 
+
+            <a
+                href="../contact-messages/index.php"
+                class="nav-item"
+            >
+                <i class="fa-solid fa-envelope"></i>
+                <span>Contact Messages</span>
             </a>
 
         </nav>
@@ -818,15 +971,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="admin-user">
 
                 <div class="user-avatar">
-
                     <i class="fa-solid fa-user"></i>
-
                 </div>
 
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars(
+                            $_SESSION["admin_username"] ?? "Admin"
+                        ) ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -836,12 +989,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
 
-            <a href="../logout.php" class="logout-btn">
+            <a
+                href="../change-password.php"
+                class="change-password-btn"
+            >
+                <i class="fa-solid fa-key"></i>
+                <span>Change Password</span>
+            </a>
 
+
+            <a
+                href="../logout.php"
+                class="logout-btn"
+            >
                 <i class="fa-solid fa-right-from-bracket"></i>
-
-                Logout
-
+                <span>Logout</span>
             </a>
 
         </div>
@@ -849,9 +1011,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </aside>
 
 
-    <!-- MAIN -->
+    <!-- =========================================================
+         MAIN
+    ========================================================== -->
 
     <main class="main-content">
+
+
+        <!-- MOBILE HEADER -->
+
+        <div class="mobile-header">
+
+            <div class="mobile-brand">
+
+                <div class="mobile-brand-icon">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+
+                <div class="mobile-brand-text">
+
+                    <h2>FSC Consultancy</h2>
+
+                    <span>Admin Panel</span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="mobile-menu-btn"
+                onclick="toggleSidebar()"
+                aria-label="Open menu"
+            >
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+        </div>
 
 
         <!-- TOPBAR -->
@@ -860,29 +1057,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div>
 
-                <!-- HAMBURGER -->
+                <h1>Add University</h1>
 
-                <button
-                    type="button"
-                    class="mobile-menu-btn"
-                    id="mobileMenuBtn"
-                    aria-label="Open menu"
-                >
-
-                    <i class="fa-solid fa-bars"></i>
-
-                </button>
-
-
-                <div>
-
-                    <h1>Add University</h1>
-
-                    <p>
-                        Create a new university record.
-                    </p>
-
-                </div>
+                <p>
+                    Create a new university record.
+                </p>
 
             </div>
 
@@ -906,6 +1085,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <section class="content">
 
+
             <div class="page-header">
 
                 <div>
@@ -919,7 +1099,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
 
 
-                <a href="index.php" class="back-btn">
+                <a
+                    href="index.php"
+                    class="back-btn"
+                >
 
                     <i class="fa-solid fa-arrow-left"></i>
 
@@ -961,7 +1144,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div class="form-card">
 
-                <form method="POST" enctype="multipart/form-data">
+                <form
+                    method="POST"
+                    enctype="multipart/form-data"
+                >
 
 
                     <!-- BASIC INFORMATION -->
@@ -1276,15 +1462,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 >
 
                                     <option
-                                        value="yes"
-                                        <?= $scholarships_available === "yes" ? "selected" : "" ?>
+                                        value="Yes"
+                                        <?= $scholarships_available === "Yes"
+                                            ? "selected"
+                                            : "" ?>
                                     >
                                         Yes - Available
                                     </option>
 
+
                                     <option
-                                        value="no"
-                                        <?= $scholarships_available === "no" ? "selected" : "" ?>
+                                        value="No"
+                                        <?= $scholarships_available === "No"
+                                            ? "selected"
+                                            : "" ?>
                                     >
                                         No - Not Available
                                     </option>
@@ -1411,15 +1602,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 >
 
                                     <option
-                                        value="active"
-                                        <?= $status === "active" ? "selected" : "" ?>
+                                        value="Active"
+                                        <?= $status === "Active"
+                                            ? "selected"
+                                            : "" ?>
                                     >
                                         Active
                                     </option>
 
+
                                     <option
-                                        value="inactive"
-                                        <?= $status === "inactive" ? "selected" : "" ?>
+                                        value="Inactive"
+                                        <?= $status === "Inactive"
+                                            ? "selected"
+                                            : "" ?>
                                     >
                                         Inactive
                                     </option>
@@ -1437,9 +1633,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     <div class="form-actions">
 
-                        <a href="index.php" class="cancel-btn">
+                        <a
+                            href="index.php"
+                            class="cancel-btn"
+                        >
                             Cancel
                         </a>
+
 
                         <button
                             type="submit"
@@ -1484,6 +1684,7 @@ imageInput.addEventListener("change", function () {
         imagePreview.style.display = "none";
 
         return;
+
     }
 
     const reader = new FileReader();
@@ -1502,59 +1703,42 @@ imageInput.addEventListener("change", function () {
 
 
 /* =========================================================
-   MOBILE SIDEBAR / HAMBURGER
+   MOBILE SIDEBAR
 ========================================================= */
 
-const mobileMenuBtn = document.getElementById("mobileMenuBtn");
-const sidebar = document.getElementById("sidebar");
-const sidebarOverlay = document.getElementById("sidebarOverlay");
+function toggleSidebar() {
 
-function openSidebar() {
+    const sidebar =
+        document.getElementById("sidebar");
 
-    sidebar.classList.add("mobile-open");
-    sidebarOverlay.classList.add("active");
+    const overlay =
+        document.getElementById("sidebarOverlay");
 
-    mobileMenuBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+    sidebar.classList.toggle("open");
+
+    overlay.classList.toggle("show");
 
 }
+
 
 function closeSidebar() {
 
-    sidebar.classList.remove("mobile-open");
-    sidebarOverlay.classList.remove("active");
+    const sidebar =
+        document.getElementById("sidebar");
 
-    mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+    const overlay =
+        document.getElementById("sidebarOverlay");
+
+    sidebar.classList.remove("open");
+
+    overlay.classList.remove("show");
 
 }
 
 
-mobileMenuBtn.addEventListener("click", function () {
-
-    if (sidebar.classList.contains("mobile-open")) {
-
-        closeSidebar();
-
-    } else {
-
-        openSidebar();
-
-    }
-
-});
-
-
-sidebarOverlay.addEventListener("click", function () {
-
-    closeSidebar();
-
-});
-
-
-/* Close sidebar after clicking a navigation link on mobile */
-
-const sidebarLinks = sidebar.querySelectorAll(".nav-item, .logout-btn");
-
-sidebarLinks.forEach(function (link) {
+document.querySelectorAll(
+    ".sidebar .nav-item, .sidebar .logout-btn"
+).forEach(function (link) {
 
     link.addEventListener("click", function () {
 
@@ -1569,16 +1753,11 @@ sidebarLinks.forEach(function (link) {
 });
 
 
-/* Reset sidebar when returning to desktop */
-
 window.addEventListener("resize", function () {
 
     if (window.innerWidth > 900) {
 
-        sidebar.classList.remove("mobile-open");
-        sidebarOverlay.classList.remove("active");
-
-        mobileMenuBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+        closeSidebar();
 
     }
 

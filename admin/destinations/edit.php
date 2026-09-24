@@ -19,8 +19,9 @@ if (!$id) {
     exit;
 }
 
-
-/* FETCH DESTINATION */
+/* =========================
+   FETCH DESTINATION
+========================= */
 
 try {
 
@@ -47,11 +48,11 @@ try {
     $_SESSION["error"] = "Unable to load destination.";
     header("Location: index.php");
     exit;
-
 }
 
-
-/* FORM VALUES */
+/* =========================
+   FORM VALUES
+========================= */
 
 $country_name = $destination["country_name"];
 $slug = $destination["slug"];
@@ -63,8 +64,9 @@ $visa_info = $destination["visa_info"];
 $image_url = $destination["image_url"];
 $status = $destination["status"];
 
-
-/* UPDATE */
+/* =========================
+   UPDATE
+========================= */
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
@@ -75,10 +77,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $tuition_range = trim($_POST["tuition_range"] ?? "");
     $living_cost = trim($_POST["living_cost"] ?? "");
     $visa_info = trim($_POST["visa_info"] ?? "");
-    $status = $_POST["status"] ?? "active";
 
+    $status = $_POST["status"] ?? "Active";
 
-    /* REQUIRED FIELDS */
+    /* =========================
+       REQUIRED FIELDS
+    ========================= */
 
     if ($country_name === "") {
         $errors[] = "Country name is required.";
@@ -108,12 +112,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $errors[] = "Visa information is required.";
     }
 
-    if (!in_array($status, ["active", "inactive"], true)) {
+    if (!in_array($status, ["Active", "Inactive"], true)) {
         $errors[] = "Invalid status selected.";
     }
 
-
-    /* IMAGE VALIDATION */
+    /* =========================
+       IMAGE VALIDATION
+    ========================= */
 
     if (
         isset($_FILES["image"]) &&
@@ -137,21 +142,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             );
 
             if (!in_array($fileType, $allowedTypes, true)) {
-
                 $errors[] = "Only JPG, PNG and WEBP images are allowed.";
-
             }
 
             if ($_FILES["image"]["size"] > 5 * 1024 * 1024) {
-
                 $errors[] = "Image size must be less than 5MB.";
-
             }
-
         }
-
     }
 
+    /* =========================
+       DATABASE UPDATE
+    ========================= */
 
     if (empty($errors)) {
 
@@ -177,7 +179,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             } else {
 
-                /* NEW IMAGE */
+                /* =========================
+                   NEW IMAGE
+                ========================= */
 
                 $newImage = false;
 
@@ -196,7 +200,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             0777,
                             true
                         );
-
                     }
 
                     $extension = strtolower(
@@ -229,15 +232,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         $errors[] =
                             "Unable to upload new image.";
-
                     }
-
                 }
 
+                /* =========================
+                   UPDATE RECORD
+                ========================= */
 
                 if (empty($errors)) {
-
-                    /* UPDATE WITH NEW IMAGE */
 
                     if ($newImage !== false) {
 
@@ -269,36 +271,35 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             ":id" => $id
                         ]);
 
-
-                        /* DELETE OLD IMAGE */
+                        /* =========================
+                           DELETE OLD IMAGE
+                        ========================= */
 
                         if (!empty($image_url)) {
 
+                            $relativeOldImage = str_replace(
+                                "../../",
+                                "",
+                                $image_url
+                            );
+
                             $oldImagePath =
                                 __DIR__ . "/../../"
-                                . str_replace(
-                                    "../../",
-                                    "",
-                                    $image_url
-                                );
+                                . $relativeOldImage;
 
                             if (
-                                file_exists($oldImagePath)
-                                &&
+                                file_exists($oldImagePath) &&
                                 is_file($oldImagePath)
                             ) {
-
                                 unlink($oldImagePath);
-
                             }
-
                         }
 
                         $image_url = $newImage;
 
                     } else {
 
-                        /* UPDATE WITHOUT CHANGING IMAGE */
+                        /* UPDATE WITHOUT IMAGE */
 
                         $stmt = $pdo->prepare("
                             UPDATE destinations
@@ -325,35 +326,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             ":status" => $status,
                             ":id" => $id
                         ]);
-
                     }
-
 
                     $_SESSION["success"] =
                         "Destination updated successfully.";
 
                     header("Location: index.php");
                     exit;
-
                 }
-
             }
 
         } catch (PDOException $e) {
 
             $errors[] =
                 "Unable to update destination. Please try again.";
-
         }
-
     }
-
 }
 
 ?>
 
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -365,7 +358,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Edit Destination | Edworldly Consultancy</title>
+    <title>Edit Destination | Foreign Study Consultants</title>
 
     <link
         rel="stylesheet"
@@ -581,6 +574,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #475467;
             font-size: 13px;
             font-weight: 600;
+            text-decoration: none;
         }
 
         .save-btn {
@@ -639,76 +633,53 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
 
             <div>
-                <h2>Edworldly</h2>
-                <span>Consultancy</span>
+                <h2>FSC</h2>
+                <span>Foreign Study Consultants</span>
             </div>
 
         </div>
 
-
         <nav class="sidebar-nav">
 
             <a href="../dashboard.php" class="nav-item">
-
                 <i class="fa-solid fa-chart-line"></i>
-
                 <span>Dashboard</span>
-
             </a>
-
 
             <a href="../courses/index.php" class="nav-item">
-
                 <i class="fa-solid fa-book-open"></i>
-
                 <span>Courses</span>
-
             </a>
-
 
             <a href="index.php" class="nav-item active">
-
                 <i class="fa-solid fa-earth-americas"></i>
-
                 <span>Destinations</span>
-
             </a>
-
 
             <a href="../universities/index.php" class="nav-item">
-
                 <i class="fa-solid fa-building-columns"></i>
-
                 <span>Universities</span>
-
             </a>
 
-
             <a href="../scholarships/index.php" class="nav-item">
-
                 <i class="fa-solid fa-award"></i>
-
                 <span>Scholarships</span>
-
             </a>
 
         </nav>
-
 
         <div class="sidebar-bottom">
 
             <div class="admin-user">
 
                 <div class="user-avatar">
-
                     <i class="fa-solid fa-user"></i>
-
                 </div>
 
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars($_SESSION["admin_username"] ?? "Admin") ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -716,7 +687,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
 
             </div>
-
 
             <a href="../logout.php" class="logout-btn">
 
@@ -729,7 +699,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </div>
 
     </aside>
-
 
     <main class="main-content">
 
@@ -745,7 +714,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             </div>
 
-
             <div class="topbar-right">
 
                 <div class="topbar-date">
@@ -760,9 +728,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         </header>
 
-
         <section class="content">
-
 
             <div class="page-header">
 
@@ -776,7 +742,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 </div>
 
-
                 <a href="index.php" class="back-btn">
 
                     <i class="fa-solid fa-arrow-left"></i>
@@ -786,7 +751,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </a>
 
             </div>
-
 
             <?php if (!empty($errors)): ?>
 
@@ -816,14 +780,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <?php endif; ?>
 
-
             <div class="form-card">
 
                 <form
                     method="POST"
                     enctype="multipart/form-data"
                 >
-
 
                     <div class="form-section">
 
@@ -835,9 +797,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         </div>
 
-
                         <div class="form-grid">
-
 
                             <div class="form-group">
 
@@ -848,7 +808,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <span class="required">*</span>
 
                                 </label>
-
 
                                 <input
                                     type="text"
@@ -861,7 +820,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                             </div>
 
-
                             <div class="form-group">
 
                                 <label for="slug">
@@ -872,7 +830,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                                 </label>
 
-
                                 <input
                                     type="text"
                                     id="slug"
@@ -882,15 +839,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     required
                                 >
 
-
                                 <span class="help-text">
-
                                     Use lowercase letters and hyphens only.
-
                                 </span>
 
                             </div>
-
 
                             <div class="form-group full">
 
@@ -901,7 +854,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <span class="required">*</span>
 
                                 </label>
-
 
                                 <textarea
                                     id="description"
@@ -916,7 +868,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
                     <div class="form-section">
 
                         <div class="form-section-title">
@@ -926,7 +877,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             <h2>Why Study Here?</h2>
 
                         </div>
-
 
                         <div class="form-grid">
 
@@ -939,7 +889,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <span class="required">*</span>
 
                                 </label>
-
 
                                 <textarea
                                     id="why_study"
@@ -954,7 +903,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
                     <div class="form-section">
 
                         <div class="form-section-title">
@@ -965,9 +913,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         </div>
 
-
                         <div class="form-grid">
-
 
                             <div class="form-group">
 
@@ -978,7 +924,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <span class="required">*</span>
 
                                 </label>
-
 
                                 <input
                                     type="text"
@@ -991,7 +936,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                             </div>
 
-
                             <div class="form-group">
 
                                 <label for="living_cost">
@@ -1001,7 +945,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <span class="required">*</span>
 
                                 </label>
-
 
                                 <input
                                     type="text"
@@ -1014,7 +957,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                             </div>
 
-
                             <div class="form-group full">
 
                                 <label for="visa_info">
@@ -1024,7 +966,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     <span class="required">*</span>
 
                                 </label>
-
 
                                 <textarea
                                     id="visa_info"
@@ -1039,7 +980,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
                     <div class="form-section">
 
                         <div class="form-section-title">
@@ -1050,16 +990,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         </div>
 
-
                         <div class="form-grid">
-
 
                             <div class="form-group full">
 
                                 <label>
                                     Current Image
                                 </label>
-
 
                                 <?php if (!empty($image_url)): ?>
 
@@ -1079,13 +1016,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                                 <?php endif; ?>
 
-
                                 <label for="image">
-
                                     Change Image
-
                                 </label>
-
 
                                 <input
                                     type="file"
@@ -1095,12 +1028,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                     accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                                 >
 
-
                                 <span class="help-text">
-
                                     Optional. Leave empty to keep the current image.
                                     JPG, PNG or WEBP. Maximum size 5MB.
-
                                 </span>
 
                             </div>
@@ -1108,7 +1038,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </div>
 
                     </div>
-
 
                     <div class="form-section">
 
@@ -1120,9 +1049,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         </div>
 
-
                         <div class="form-grid">
-
 
                             <div class="form-group">
 
@@ -1134,7 +1061,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                                 </label>
 
-
                                 <select
                                     id="status"
                                     name="status"
@@ -1143,15 +1069,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                 >
 
                                     <option
-                                        value="active"
-                                        <?= $status === "active" ? "selected" : "" ?>
+                                        value="Active"
+                                        <?= $status === "Active" ? "selected" : "" ?>
                                     >
                                         Active
                                     </option>
 
                                     <option
-                                        value="inactive"
-                                        <?= $status === "inactive" ? "selected" : "" ?>
+                                        value="Inactive"
+                                        <?= $status === "Inactive" ? "selected" : "" ?>
                                     >
                                         Inactive
                                     </option>
@@ -1164,7 +1090,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     </div>
 
-
                     <div class="form-actions">
 
                         <a
@@ -1173,7 +1098,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         >
                             Cancel
                         </a>
-
 
                         <button
                             type="submit"
@@ -1187,7 +1111,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         </button>
 
                     </div>
-
 
                 </form>
 

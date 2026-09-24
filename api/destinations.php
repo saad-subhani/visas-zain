@@ -12,7 +12,21 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 require_once __DIR__ . "/../config/db.php";
 
+/*
+|--------------------------------------------------------------------------
+| CMS BASE URL
+|--------------------------------------------------------------------------
+*/
+
+$baseUrl = "http://localhost/realCMS/";
+
 try {
+
+    /*
+    |--------------------------------------------------------------------------
+    | FETCH ACTIVE DESTINATIONS
+    |--------------------------------------------------------------------------
+    */
 
     $stmt = $pdo->prepare("
         SELECT
@@ -34,21 +48,109 @@ try {
 
     $stmt->execute();
 
-    $destinations = $stmt->fetchAll();
+    $destinations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode([
-        "success" => true,
-        "data" => $destinations
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT IMAGE URL
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($destinations as &$destination) {
+
+        if (!empty($destination["image_url"])) {
+
+            $imageUrl = trim($destination["image_url"]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Already a complete URL
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                str_starts_with($imageUrl, "http://") ||
+                str_starts_with($imageUrl, "https://")
+            ) {
+
+                /*
+                | Agar old database value mein ../../uploads aa gaya hai
+                | to filename nikal kar correct CMS URL bana do.
+                */
+
+                if (str_contains($imageUrl, "../../uploads/")) {
+
+                    $filename = basename($imageUrl);
+
+                    $destination["image_url"] =
+                        $baseUrl .
+                        "uploads/destinations/" .
+                        $filename;
+
+                } else {
+
+                    $destination["image_url"] = $imageUrl;
+                }
+
+            } else {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Relative image path
+                |--------------------------------------------------------------------------
+                */
+
+                $filename = basename($imageUrl);
+
+                $destination["image_url"] =
+                    $baseUrl .
+                    "uploads/destinations/" .
+                    $filename;
+            }
+
+        } else {
+
+            $destination["image_url"] = null;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | NORMALIZE STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        $destination["status"] =
+            $destination["status"] ?? "active";
+    }
+
+    unset($destination);
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUCCESS RESPONSE
+    |--------------------------------------------------------------------------
+    */
+
+    echo json_encode(
+        [
+            "success" => true,
+            "count" => count($destinations),
+            "data" => $destinations
+        ],
+        JSON_UNESCAPED_UNICODE |
+        JSON_UNESCAPED_SLASHES
+    );
 
 } catch (PDOException $e) {
 
     http_response_code(500);
 
-    echo json_encode([
-        "success" => false,
-        "message" => "Failed to fetch destinations.",
-        "error" => $e->getMessage()
-    ]);
+    echo json_encode(
+        [
+            "success" => false,
+            "message" => "Failed to fetch destinations."
+        ],
+        JSON_UNESCAPED_UNICODE |
+        JSON_UNESCAPED_SLASHES
+    );
 }
-?>

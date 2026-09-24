@@ -50,7 +50,7 @@ try {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Contact Messages | Edworldly Consultancy</title>
+    <title>Contact Messages | FSC Consultancy</title>
 
     <link
         rel="stylesheet"
@@ -140,10 +140,9 @@ try {
             border-radius: 999px;
             font-size: 11px;
             font-weight: 700;
-            text-transform: capitalize;
         }
 
-        .status-unread {
+        .status-new {
             background: #fff4e5;
             color: #b76e00;
         }
@@ -151,6 +150,11 @@ try {
         .status-read {
             background: #eaf8ef;
             color: #16803c;
+        }
+
+        .status-replied {
+            background: #eef4ff;
+            color: #315edb;
         }
 
         .action-buttons {
@@ -319,7 +323,7 @@ try {
 
 <div class="admin-layout">
 
-    <!-- SIDEBAR -->
+    <!-- EXACT DASHBOARD SIDEBAR -->
 
     <aside class="sidebar" id="sidebar">
 
@@ -330,11 +334,12 @@ try {
             </div>
 
             <div>
-                <h2>Edworldly</h2>
+                <h2>FSC</h2>
                 <span>Consultancy</span>
             </div>
 
         </div>
+
 
         <nav class="sidebar-nav">
 
@@ -370,6 +375,7 @@ try {
 
         </nav>
 
+
         <div class="sidebar-bottom">
 
             <div class="admin-user">
@@ -381,7 +387,7 @@ try {
                 <div>
 
                     <strong>
-                        <?= htmlspecialchars($_SESSION["admin_username"]) ?>
+                        <?= htmlspecialchars($_SESSION["admin_username"] ?? "Admin") ?>
                     </strong>
 
                     <span>Administrator</span>
@@ -390,10 +396,12 @@ try {
 
             </div>
 
+
             <a href="../change-password.php" class="change-password-btn">
                 <i class="fa-solid fa-key"></i>
                 <span>Change Password</span>
             </a>
+
 
             <a href="../logout.php" class="logout-btn">
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -421,7 +429,7 @@ try {
             <div>
 
                 <strong style="color:#172033;">
-                    Edworldly
+                    FSC
                 </strong>
 
                 <span
@@ -441,9 +449,7 @@ try {
                 class="mobile-menu-btn"
                 onclick="toggleSidebar()"
             >
-
                 <i class="fa-solid fa-bars"></i>
-
             </button>
 
         </div>
@@ -481,24 +487,8 @@ try {
             <?php if (isset($_GET["deleted"])): ?>
 
                 <div class="success-alert">
-
                     <i class="fa-solid fa-circle-check"></i>
-
                     Contact message deleted successfully.
-
-                </div>
-
-            <?php endif; ?>
-
-
-            <?php if (isset($_GET["error"])): ?>
-
-                <div class="error-alert">
-
-                    <i class="fa-solid fa-circle-exclamation"></i>
-
-                    Unable to delete contact message.
-
                 </div>
 
             <?php endif; ?>
@@ -507,11 +497,8 @@ try {
             <?php if ($error !== ""): ?>
 
                 <div class="error-alert">
-
                     <i class="fa-solid fa-circle-exclamation"></i>
-
                     <?= htmlspecialchars($error) ?>
-
                 </div>
 
             <?php endif; ?>
@@ -543,25 +530,15 @@ try {
                             <thead>
 
                                 <tr>
-
                                     <th>#</th>
-
                                     <th>Name</th>
-
                                     <th>Email</th>
-
                                     <th>Phone</th>
-
                                     <th>Subject</th>
-
                                     <th>Message</th>
-
                                     <th>Status</th>
-
                                     <th>Date</th>
-
                                     <th>Actions</th>
-
                                 </tr>
 
                             </thead>
@@ -577,73 +554,61 @@ try {
                                         <?= (int) $message["id"] ?>
                                     </td>
 
-
                                     <td class="name-cell">
                                         <?= htmlspecialchars($message["name"]) ?>
                                     </td>
-
 
                                     <td class="email-cell">
                                         <?= htmlspecialchars($message["email"]) ?>
                                     </td>
 
-
                                     <td>
-
                                         <?= $message["phone"]
                                             ? htmlspecialchars($message["phone"])
                                             : "—"
                                         ?>
-
                                     </td>
 
-
                                     <td class="subject-cell">
-
                                         <?= $message["subject"]
                                             ? htmlspecialchars($message["subject"])
                                             : "—"
                                         ?>
-
                                     </td>
-
 
                                     <td
                                         class="message-cell"
                                         title="<?= htmlspecialchars($message["message"]) ?>"
                                     >
-
                                         <?= htmlspecialchars($message["message"]) ?>
-
                                     </td>
-
 
                                     <td>
 
-                                        <?php if ($message["status"] === "read"): ?>
+                                        <?php if ($message["status"] === "New"): ?>
+
+                                            <span class="status-badge status-new">
+                                                <i class="fa-solid fa-envelope"></i>
+                                                New
+                                            </span>
+
+                                        <?php elseif ($message["status"] === "Read"): ?>
 
                                             <span class="status-badge status-read">
-
                                                 <i class="fa-solid fa-check"></i>
-
                                                 Read
-
                                             </span>
 
                                         <?php else: ?>
 
-                                            <span class="status-badge status-unread">
-
-                                                <i class="fa-solid fa-envelope"></i>
-
-                                                Unread
-
+                                            <span class="status-badge status-replied">
+                                                <i class="fa-solid fa-reply"></i>
+                                                Replied
                                             </span>
 
                                         <?php endif; ?>
 
                                     </td>
-
 
                                     <td class="date-cell">
 
@@ -654,7 +619,6 @@ try {
 
                                     </td>
 
-
                                     <td>
 
                                         <div class="action-buttons">
@@ -664,9 +628,7 @@ try {
                                                 class="action-btn view-btn"
                                                 title="View Message"
                                             >
-
                                                 <i class="fa-solid fa-eye"></i>
-
                                             </a>
 
 
@@ -688,9 +650,7 @@ try {
                                                     class="action-btn delete-btn"
                                                     title="Delete Message"
                                                 >
-
                                                     <i class="fa-solid fa-trash"></i>
-
                                                 </button>
 
                                             </form>
@@ -714,9 +674,7 @@ try {
                     <div class="empty-state">
 
                         <div class="empty-icon">
-
                             <i class="fa-solid fa-envelope-open"></i>
-
                         </div>
 
                         <h3>No Contact Messages</h3>
@@ -742,33 +700,23 @@ try {
 
 function toggleSidebar() {
 
-    const sidebar =
-        document.getElementById("sidebar");
-
-    const overlay =
-        document.getElementById("sidebarOverlay");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
 
     sidebar.classList.toggle("open");
-
     overlay.classList.toggle("show");
 
 }
 
-
 function closeSidebar() {
 
-    const sidebar =
-        document.getElementById("sidebar");
-
-    const overlay =
-        document.getElementById("sidebarOverlay");
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
 
     sidebar.classList.remove("open");
-
     overlay.classList.remove("show");
 
 }
-
 
 window.addEventListener("resize", function () {
 
