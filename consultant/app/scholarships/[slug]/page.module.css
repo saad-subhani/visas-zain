@@ -1,0 +1,739 @@
+.page {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  background: #1c1c1e;
+  color: #ffffff;
+}
+
+.container {
+  width: min(1150px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+  position: relative;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+
+  background-image: url("/images/services/scholarship-guidance.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(15, 15, 15, 0.96) 0%,
+      rgba(15, 15, 15, 0.82) 48%,
+      rgba(15, 15, 15, 0.48) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(15, 15, 15, 0.2),
+      rgba(15, 15, 15, 0.7)
+    );
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+
+  width: min(1150px, calc(100% - 48px));
+  margin: 0 auto;
+
+  padding-top: 35px;
+}
+
+.eyebrow,
+.sectionEyebrow,
+.blockEyebrow,
+.ctaEyebrow {
+  display: block;
+
+  color: #10a7d9;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+}
+
+.heroContent h1 {
+  max-width: 900px;
+
+  margin: 18px 0 28px;
+
+  color: #ffffff;
+
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -3px;
+  font-weight: 700;
+
+  overflow-wrap: anywhere;
+}
+
+.heroContent p {
+  max-width: 620px;
+
+  margin: 0 0 32px;
+
+  color: #d0d0d3;
+
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.heroButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 15px 21px;
+
+  border-radius: 8px;
+
+  background: #10a7d9;
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  transition: all 0.3s ease;
+}
+
+.heroButton:hover {
+  background: #ffffff;
+  color: #0f0f0f;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   DETAILS
+========================= */
+
+.details {
+  padding: 115px 0 65px;
+  background: #1c1c1e;
+}
+
+.sectionIntro {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  gap: 60px;
+
+  margin-bottom: 60px;
+}
+
+.sectionIntro h2 {
+  margin: 18px 0 0;
+
+  color: #ffffff;
+
+  font-size: 55px;
+  line-height: 0.98;
+  letter-spacing: -2.5px;
+}
+
+.sectionIntro > p {
+  max-width: 390px;
+
+  margin: 0;
+
+  color: #99999e;
+
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+/* =========================
+   INFO CARDS
+========================= */
+
+.infoGrid {
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 80px;
+}
+
+.infoCard {
+  min-width: 0;
+  min-height: 145px;
+
+  padding: 25px;
+
+  border: 1px solid #38383c;
+  border-radius: 16px;
+
+  background: #2b2b2d;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.infoCard span {
+  color: #77777c;
+
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.infoCard strong {
+  color: #ffffff;
+
+  font-size: 18px;
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+.infoCard .active {
+  color: #10a7d9;
+}
+
+/* =========================
+   CONTENT GRID
+========================= */
+
+.contentGrid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 18px;
+
+  margin-bottom: 18px;
+}
+
+.contentBlock {
+  min-width: 0;
+
+  padding: 40px;
+
+  border: 1px solid #38383c;
+  border-radius: 18px;
+
+  background: #2b2b2d;
+}
+
+.contentBlock h3 {
+  margin: 18px 0 25px;
+
+  color: #ffffff;
+
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -1.8px;
+}
+
+.contentBlock p {
+  max-width: 560px;
+
+  margin: 0;
+
+  color: #a2a2a6;
+
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.countryList {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 25px;
+}
+
+.countryList span {
+  padding: 9px 12px;
+
+  border: 1px solid #414146;
+  border-radius: 7px;
+
+  background: #242426;
+
+  color: #ffffff;
+
+  font-size: 10px;
+}
+
+/* =========================
+   APPLICATION
+========================= */
+
+.application {
+  min-height: 300px;
+
+  margin-bottom: 65px;
+  padding: 40px;
+
+  border-radius: 18px;
+
+  background: #10a7d9;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 50px;
+}
+
+.applicationContent {
+  max-width: 650px;
+}
+
+.application .blockEyebrow {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.application h3 {
+  margin: 18px 0 22px;
+
+  color: #ffffff;
+
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.application p {
+  margin: 0;
+
+  color: rgba(255, 255, 255, 0.86);
+
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.sourceBox {
+  min-width: 250px;
+
+  padding: 25px;
+
+  border-radius: 14px;
+
+  background: #0f0f0f;
+}
+
+.sourceBox span {
+  display: block;
+
+  margin-bottom: 15px;
+
+  color: #77777c;
+
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.sourceBox a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.sourceBox a:hover {
+  color: #10a7d9;
+}
+
+/* =========================
+   CTA
+========================= */
+
+.cta {
+  min-height: 380px;
+
+  padding: 50px 55px;
+
+  border-radius: 24px;
+
+  background: #10a7d9;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ctaEyebrow {
+  margin-bottom: 20px;
+
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.cta h2 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 45px;
+  line-height: 1;
+  letter-spacing: -2.5px;
+}
+
+.cta p {
+  max-width: 620px;
+
+  margin: 25px 0 30px;
+
+  color: rgba(255, 255, 255, 0.85);
+
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.ctaButton {
+  width: fit-content;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 15px 22px;
+
+  border-radius: 8px;
+
+  background: #0f0f0f;
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  transition: all 0.3s ease;
+}
+
+.ctaButton:hover {
+  background: #ffffff;
+  color: #0f0f0f;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1000px) {
+  .container,
+  .heroContent {
+    width: calc(100% - 40px);
+  }
+
+  .hero {
+    min-height: 560px;
+  }
+
+  .heroContent h1 {
+    font-size: 56px;
+  }
+
+  .sectionIntro h2 {
+    font-size: 48px;
+  }
+
+  .infoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .application {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sourceBox {
+    width: 100%;
+  }
+
+  .cta {
+    padding: 45px;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+  .container,
+  .heroContent {
+    width: calc(100% - 32px);
+  }
+
+  .hero {
+    min-height: 500px;
+
+    background-position: 60% center;
+  }
+
+  .heroContent {
+    padding-top: 0;
+  }
+
+  .heroContent h1 {
+    margin: 16px 0 22px;
+
+    font-size: 44px;
+    line-height: 1.02;
+    letter-spacing: -2px;
+  }
+
+  .heroContent p {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .details {
+    padding: 75px 0 40px;
+  }
+
+  .sectionIntro {
+    display: block;
+
+    margin-bottom: 40px;
+  }
+
+  .sectionIntro h2 {
+    margin-bottom: 20px;
+
+    font-size: 42px;
+  }
+
+  .sectionIntro > p {
+    max-width: 100%;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+
+    margin-bottom: 55px;
+  }
+
+  .infoCard {
+    min-height: 130px;
+    padding: 20px;
+  }
+
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .contentBlock {
+    padding: 28px;
+  }
+
+  .contentBlock h3 {
+    font-size: 34px;
+  }
+
+  .application {
+    margin-bottom: 40px;
+
+    padding: 30px;
+
+    gap: 30px;
+
+    border-radius: 20px;
+  }
+
+  .application h3 {
+    font-size: 35px;
+  }
+
+  .cta {
+    min-height: 340px;
+
+    padding: 35px 28px;
+
+    border-radius: 20px;
+  }
+
+  .cta h2 {
+    font-size: 38px;
+    letter-spacing: -1.8px;
+  }
+}
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 480px) {
+  .container,
+  .heroContent {
+    width: calc(100% - 28px);
+  }
+
+  .hero {
+    min-height: 480px;
+  }
+
+  .heroContent h1 {
+    font-size: 36px;
+    letter-spacing: -1.7px;
+  }
+
+  .heroContent p {
+    font-size: 12px;
+  }
+
+  .details {
+    padding: 60px 0 30px;
+  }
+
+  .sectionEyebrow {
+    font-size: 8px;
+  }
+
+  .sectionIntro h2 {
+    font-size: 34px;
+    letter-spacing: -1.5px;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .infoCard {
+    min-height: 115px;
+  }
+
+  .contentBlock {
+    padding: 23px;
+
+    border-radius: 15px;
+  }
+
+  .contentBlock h3 {
+    font-size: 30px;
+  }
+
+  .contentBlock p {
+    font-size: 11px;
+  }
+
+  .application {
+    padding: 25px;
+
+    border-radius: 17px;
+  }
+
+  .application h3 {
+    font-size: 31px;
+  }
+
+  .application p {
+    font-size: 11px;
+  }
+
+  .sourceBox {
+    min-width: 0;
+
+    padding: 20px;
+  }
+
+  .sourceBox a {
+    font-size: 9px;
+  }
+
+  .cta {
+    min-height: 320px;
+
+    padding: 30px 23px;
+
+    border-radius: 18px;
+  }
+
+  .cta h2 {
+    font-size: 30px;
+    letter-spacing: -1.3px;
+  }
+
+  .cta p {
+    font-size: 10px;
+  }
+
+  .ctaButton,
+  .heroButton {
+    width: 100%;
+
+    justify-content: center;
+
+    font-size: 9px;
+  }
+}
+
+/* =========================
+   VERY SMALL MOBILE
+========================= */
+
+@media (max-width: 360px) {
+  .container,
+  .heroContent {
+    width: calc(100% - 24px);
+  }
+
+  .heroContent h1 {
+    font-size: 32px;
+  }
+
+  .sectionIntro h2 {
+    font-size: 30px;
+  }
+
+  .infoCard {
+    padding: 18px;
+  }
+
+  .contentBlock {
+    padding: 20px;
+  }
+
+  .application {
+    padding: 21px;
+  }
+
+  .cta {
+    padding: 27px 19px;
+  }
+
+  .cta h2 {
+    font-size: 27px;
+  }
+}

@@ -1,0 +1,755 @@
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+  position: relative;
+  min-height: 460px;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(15, 15, 15, 0.92) 0%,
+      rgba(15, 15, 15, 0.78) 42%,
+      rgba(15, 15, 15, 0.58) 70%,
+      rgba(15, 15, 15, 0.78) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(15, 15, 15, 0.12),
+      rgba(15, 15, 15, 0.65)
+    ),
+    url("/images/services/university-selection.jpg");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.heroGlow {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  left: -120px;
+  top: 20px;
+  border-radius: 50%;
+
+  background: rgba(16, 167, 217, 0.12);
+  filter: blur(80px);
+  pointer-events: none;
+
+  animation: glowPulse 5s ease-in-out infinite;
+}
+
+.heroCircle {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  right: -220px;
+  bottom: -280px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   HERO CONTENT
+========================================================= */
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+
+  width: min(1400px, calc(100% - 48px));
+  margin: 0 auto;
+
+  padding: 70px 0;
+
+  text-align: left;
+
+  animation: heroContentIn 0.9s ease-out both;
+}
+
+.heroLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 20px;
+
+  color: #10a7d9;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.heroLabel span {
+  display: block;
+  width: 38px;
+  height: 2px;
+
+  background: #10a7d9;
+}
+
+.heroContent h1 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: clamp(48px, 5vw, 64px);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -2px;
+}
+
+.heroContent h1 span {
+  color: #10a7d9;
+}
+
+.heroContent p {
+  max-width: 600px;
+
+  margin: 24px 0 0;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-family: var(--font-sora), sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+
+/* =========================================================
+   BREADCRUMB
+========================================================= */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+}
+
+.breadcrumb a {
+  color: #ffffff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+  color: #10a7d9;
+}
+
+.breadcrumb span:first-of-type {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.breadcrumb span:last-child {
+  color: #10a7d9;
+}
+
+/* =========================================================
+   UNIVERSITIES SECTION
+========================================================= */
+
+.universitiesSection {
+  padding: 110px 0 120px;
+  background: #0f0f0f;
+}
+
+.sectionHeader {
+  width: min(1400px, calc(100% - 48px));
+  margin: 0 auto 65px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 50px;
+}
+
+.sectionLabel {
+  margin-bottom: 16px;
+
+  color: #10a7d9;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 55px;
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -2px;
+}
+
+.sectionHeader h2 span {
+  color: #10a7d9;
+}
+
+.sectionHeader > p {
+  max-width: 500px;
+  margin: 0;
+
+  color: #a1a1a1;
+
+  font-family: var(--font-sora), sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   UNIVERSITY GRID
+========================================================= */
+
+.universityGrid {
+  width: min(1400px, calc(100% - 48px));
+  margin: 0 auto;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.universityCard {
+  overflow: hidden;
+
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.universityCard:hover {
+  transform: translateY(-8px);
+
+  border-color: rgba(16, 167, 217, 0.45);
+
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+}
+
+.cardImage {
+  position: relative;
+  height: 195px;
+  overflow: hidden;
+}
+
+.cardImage img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  transition: transform 0.5s ease;
+}
+
+.universityCard:hover .cardImage img {
+  transform: scale(1.05);
+}
+
+.cardNumber {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+
+  padding: 8px 12px;
+
+  color: #ffffff;
+  background: rgba(15, 15, 15, 0.75);
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+
+  backdrop-filter: blur(8px);
+}
+
+.scholarshipBadge {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+
+  padding: 8px 12px;
+
+  color: #ffffff;
+  background: #10a7d9;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.cardContent {
+  padding: 15px;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 12px;
+
+  color: #10a7d9;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.location span {
+  color: #777777;
+}
+
+.cardContent h3 {
+  margin: 0 0 5px;
+
+  color: #ffffff;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.cardContent > p {
+  min-height: 76px;
+  margin: 0 0 12px;
+
+  color: #a1a1a1;
+
+  font-family: var(--font-sora), sans-serif;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+
+/* =========================================================
+   CARD META
+========================================================= */
+
+.cardMeta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  padding: 15px 0;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cardMeta div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.cardMeta span {
+  color: #777777;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.cardMeta strong {
+  color: #ffffff;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   VIEW BUTTON
+========================================================= */
+
+.viewButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 24px;
+  padding: 15px 18px;
+
+  color: #ffffff;
+  background: transparent;
+
+  border: 1px solid rgba(16, 167, 217, 0.35);
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  text-decoration: none;
+
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.viewButton span {
+  font-size: 18px;
+}
+
+.viewButton:hover {
+  color: #ffffff;
+  background: #10a7d9;
+  border-color: #10a7d9;
+}
+
+
+/* =========================================================
+   CTA
+========================================================= */
+
+.ctaSection {
+  position: relative;
+  overflow: hidden;
+
+  padding: 100px 0;
+
+  background: #10a7d9;
+}
+
+.ctaGlow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  left: -180px;
+  top: -220px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.12);
+  filter: blur(60px);
+
+  pointer-events: none;
+
+  animation: glowPulse 5s ease-in-out infinite;
+}
+
+.ctaCircle {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  right: -300px;
+  bottom: -400px;
+
+  border: 1px solid rgba(1, 36, 91, 0.18);
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+.ctaContainer {
+  position: relative;
+  z-index: 2;
+
+  width: min(900px, calc(100% - 48px));
+  margin: 0 auto;
+
+  text-align: center;
+}
+
+.ctaLabel {
+  margin-bottom: 18px;
+
+  color: rgba(1, 36, 91, 0.72);
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.ctaContainer h2 {
+  margin: 0;
+
+  color: #01245b;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -2px;
+}
+
+.ctaContainer h2 span {
+  color: #ffffff;
+}
+
+.ctaContainer p {
+  max-width: 580px;
+
+  margin: 25px auto 30px;
+
+  color: rgba(1, 36, 91, 0.75);
+
+  font-family: var(--font-sora), sans-serif;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+  padding: 17px 25px;
+
+  color: #ffffff;
+  background: #01245b;
+
+  font-family: var(--font-archivo), sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  text-decoration: none;
+
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease;
+}
+
+.ctaButton span {
+  font-size: 18px;
+}
+
+.ctaButton:hover {
+  transform: translateY(-3px);
+  color: #001a42;
+  background-color: #ffffff;
+}
+
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes heroContentIn {
+  from {
+    opacity: 0;
+    transform: translateX(-70px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+  .hero {
+    min-height: 500px;
+    height: 500px;
+  }
+
+  .heroContent {
+    width: min(1400px, calc(100% - 40px));
+  }
+
+  .sectionHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sectionHeader > p {
+    max-width: 650px;
+  }
+}
+
+@media (max-width: 800px) {
+  .hero {
+    min-height: 500px;
+    height: 500px;
+  }
+
+  .heroContent {
+    width: calc(100% - 40px);
+  }
+
+  .heroContent h1 {
+    font-size: clamp(44px, 9vw, 58px);
+  }
+
+  .heroContent p {
+    max-width: 540px;
+    font-size: 14px;
+  }
+
+  .universityGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .universitiesSection {
+    padding: 85px 0 95px;
+  }
+
+  .sectionHeader {
+    width: calc(100% - 40px);
+    margin-bottom: 50px;
+  }
+
+  .universityGrid {
+    width: calc(100% - 40px);
+  }
+
+  .ctaSection {
+    padding: 95px 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero {
+    min-height: 500px;
+    height: 500px;
+
+    background-position: 62% center;
+  }
+
+  .heroContent {
+    width: calc(100% - 32px);
+    padding: 50px 0;
+  }
+
+  .heroLabel {
+    margin-bottom: 16px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+
+  .heroLabel span {
+    width: 28px;
+  }
+
+  .heroContent h1 {
+    font-size: 42px;
+    line-height: 1;
+    letter-spacing: -1.5px;
+  }
+
+  .heroContent p {
+    max-width: 100%;
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .universitiesSection {
+    padding: 70px 0 80px;
+  }
+
+  .sectionHeader {
+    width: calc(100% - 32px);
+  }
+
+  .sectionHeader h2 {
+    font-size: 42px;
+  }
+
+  .universityGrid {
+    width: calc(100% - 32px);
+  }
+
+  .cardImage {
+    height: 230px;
+  }
+
+  .cardContent {
+    padding: 24px;
+  }
+
+  .cardContent h3 {
+    font-size: 23px;
+  }
+
+  .cardContent > p {
+    min-height: auto;
+  }
+
+  .cardMeta {
+    gap: 10px;
+  }
+  .breadcrumb {
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 8px;
+  letter-spacing: 1.4px;
+}
+
+  .cardMeta strong {
+    font-size: 11px;
+  }
+
+  .ctaSection {
+    padding: 80px 0;
+  }
+
+  .ctaContainer {
+    width: calc(100% - 32px);
+  }
+
+  .ctaContainer h2 {
+    font-size: 45px;
+  }
+
+  .ctaContainer p {
+    font-size: 13px;
+  }
+}

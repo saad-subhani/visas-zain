@@ -1,0 +1,568 @@
+.container {
+  width: min(1150px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+/* HERO */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 145px 0 100px;
+  background: #0f0f0f;
+}
+
+.heroGlow {
+  position: absolute;
+  width: 650px;
+  height: 650px;
+  border-radius: 50%;
+  background: rgba(16, 167, 217, 0.08);
+  filter: blur(80px);
+  top: -250px;
+  right: -180px;
+  pointer-events: none;
+}
+
+.backLink {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  color: #9b9b9f;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 55px;
+  transition: color 0.3s ease;
+}
+
+.backLink:hover {
+  color: #10a7d9;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 0.85fr;
+  gap: 70px;
+  align-items: center;
+}
+
+.heroText {
+  max-width: 650px;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 20px;
+  color: #10a7d9;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+}
+
+.heroText h1 {
+  margin: 0 0 28px;
+  color: #ffffff;
+  font-size: 62px;
+  line-height: 0.98;
+  letter-spacing: -3px;
+  font-weight: 700;
+}
+
+.heroText p {
+  max-width: 600px;
+  margin: 0;
+  color: #b4b4b8;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 38px;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 22px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.primaryButton {
+  background: #10a7d9;
+  color: #ffffff;
+}
+
+.primaryButton:hover {
+  background: #ffffff;
+  color: #0f0f0f;
+  transform: translateY(-2px);
+}
+
+.secondaryButton {
+  border: 1px solid #3b3b3f;
+  color: #ffffff;
+}
+
+.secondaryButton:hover {
+  border-color: #10a7d9;
+  color: #10a7d9;
+}
+
+.heroImage {
+  position: relative;
+  height: 520px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #2b2b2d;
+}
+
+.heroImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imageLabel {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(15, 15, 15, 0.82);
+  backdrop-filter: blur(10px);
+}
+
+.imageLabel span {
+  display: block;
+  margin-bottom: 6px;
+  color: #10a7d9;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.imageLabel strong {
+  color: #ffffff;
+  font-size: 15px;
+}
+
+/* OVERVIEW */
+
+.overview {
+  padding: 115px 0;
+  background: #1c1c1e;
+}
+
+.sectionIntro {
+  max-width: 800px;
+  margin-bottom: 55px;
+}
+
+.sectionIntro h2,
+.sectionHeader h2,
+.requirementIntro h2,
+.ctaBox h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 55px;
+  line-height: 1;
+  letter-spacing: -2.5px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.infoCard {
+  min-height: 190px;
+  padding: 28px;
+  border: 1px solid #38383c;
+  border-radius: 16px;
+  background: #2b2b2d;
+}
+
+.infoCard span {
+  display: block;
+  margin-bottom: 25px;
+  color: #10a7d9;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.infoCard h3 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 19px;
+  line-height: 1.35;
+}
+
+.infoCard p {
+  margin: 0;
+  color: #929296;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* PROGRAMMES */
+
+.programmes {
+  padding: 115px 0;
+  background: #0f0f0f;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 50px;
+  margin-bottom: 55px;
+}
+
+.sectionHeader > div {
+  flex: 1;
+}
+
+.sectionHeader p {
+  max-width: 360px;
+  margin: 0;
+  color: #929296;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.programmeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.programmeCard {
+  min-height: 190px;
+  padding: 28px;
+  border: 1px solid #2e2e31;
+  border-radius: 16px;
+  background: #1c1c1e;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.programmeCard:hover {
+  transform: translateY(-5px);
+  border-color: #10a7d9;
+}
+
+.programmeCard > span {
+  color: #10a7d9;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.programmeCard h3 {
+  margin: 55px 0 30px;
+  color: #ffffff;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.programmeCard div {
+  color: #77777c;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* REQUIREMENTS */
+
+.requirements {
+  padding: 115px 0;
+  background: #1c1c1e;
+}
+
+.requirementGrid {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 90px;
+}
+
+.requirementIntro p {
+  max-width: 430px;
+  margin: 28px 0 0;
+  color: #929296;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.requirementCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.requirementCard {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 20px;
+  padding: 28px;
+  border: 1px solid #38383c;
+  border-radius: 14px;
+  background: #2b2b2d;
+}
+
+.requirementCard > span {
+  color: #10a7d9;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.requirementCard h3 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.requirementCard p {
+  margin: 0;
+  color: #929296;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+/* CTA */
+
+.cta {
+  padding: 0 0 65px;
+  background: #1c1c1e;
+}
+
+.ctaBox {
+  min-height: 380px;
+  padding: 55px;
+  border-radius: 24px;
+  background: #10a7d9;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ctaBox .eyebrow {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ctaBox h2 {
+  max-width: 750px;
+}
+
+.ctaBox p {
+  max-width: 620px;
+  margin: 25px 0 30px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.ctaButton {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 22px;
+  border-radius: 8px;
+  background: #0f0f0f;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.ctaButton:hover {
+  background: #ffffff;
+  color: #0f0f0f;
+  transform: translateY(-2px);
+}
+
+/* NOT FOUND */
+
+.notFound {
+  min-height: 75vh;
+  padding: 180px 24px 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #0f0f0f;
+}
+
+.notFound > span {
+  margin-bottom: 18px;
+  color: #10a7d9;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.notFound h1 {
+  margin: 0 0 20px;
+  color: #ffffff;
+  font-size: clamp(42px, 6vw, 72px);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.notFound p {
+  margin: 0 0 30px;
+  color: #929296;
+}
+
+.backButton {
+  padding: 15px 22px;
+  border-radius: 8px;
+  background: #10a7d9;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+  .heroContent {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+
+  .heroImage {
+    height: 450px;
+  }
+
+  .infoGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .programmeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .requirementGrid {
+    grid-template-columns: 1fr;
+    gap: 55px;
+  }
+}
+
+@media (max-width: 800px) {
+  .hero {
+    padding: 125px 0 80px;
+  }
+
+  .heroText h1 {
+    letter-spacing: -2px;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .overview,
+  .programmes,
+  .requirements {
+    padding: 85px 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    width: min(100% - 32px, 1150px);
+  }
+
+  .hero {
+    padding: 110px 0 60px;
+  }
+
+  .backLink {
+    margin-bottom: 40px;
+  }
+
+  .heroText h1 {
+    font-size: 45px;
+  }
+
+  .heroText p {
+    font-size: 15px;
+  }
+
+  .heroActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    justify-content: center;
+  }
+
+  .heroImage {
+    height: 360px;
+  }
+
+  .infoGrid,
+  .programmeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionIntro h2,
+  .sectionHeader h2,
+  .requirementIntro h2,
+  .ctaBox h2 {
+    font-size: 42px;
+  }
+
+  .infoCard {
+    min-height: auto;
+  }
+
+  .programmeCard {
+    min-height: 160px;
+  }
+
+  .programmeCard h3 {
+    margin-top: 40px;
+  }
+
+  .ctaBox {
+    min-height: 360px;
+    padding: 35px 28px;
+    border-radius: 20px;
+  }
+
+  .ctaBox p {
+    font-size: 14px;
+  }
+}
